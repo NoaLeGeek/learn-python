@@ -1,8 +1,9 @@
-import turtle
+from turtle import *
 
 
 def main():
-    print("e")
+    forward(55)
+    done()
 
 
 if __name__ == '__main__':
