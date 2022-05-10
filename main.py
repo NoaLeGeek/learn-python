@@ -1,9 +1,10 @@
-from turtle import *
+import Polygon
+import Utils
+import MathsUtils
 
 
 def main():
-    forward(55)
-    done()
+    Polygon.polygon(50, 6, 1)
 
 
 if __name__ == '__main__':
