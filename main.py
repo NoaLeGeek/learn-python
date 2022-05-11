@@ -1,11 +1,11 @@
 import Polygon
 import Utils
+import Games
 import MathsUtils
 
 
 def main():
-    print(MathsUtils.is_perfect(45))
-    print(MathsUtils.is_perfect(6))
+    Games.guess_number()
 
 
 if __name__ == '__main__':
