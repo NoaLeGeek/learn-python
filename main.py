@@ -4,7 +4,8 @@ import MathsUtils
 
 
 def main():
-    Polygon.polygon(50, 6, 1)
+    print(MathsUtils.is_perfect(45))
+    print(MathsUtils.is_perfect(6))
 
 
 if __name__ == '__main__':
