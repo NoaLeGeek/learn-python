@@ -5,7 +5,7 @@ import MathsUtils
 
 
 def main():
-    Games.guess_number()
+    Games.rock_paper_scissors()
 
 
 if __name__ == '__main__':
