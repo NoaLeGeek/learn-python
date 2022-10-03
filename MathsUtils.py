@@ -34,6 +34,14 @@ def inequality_with_absolute(expression: str) -> bool:
     return args[0].startswith("|") and args[0].endswith("|") and not is_number(list(args[0])[1]) and list(args[0])[2] in ["-", "+"] and is_number(args[0][3:][:-1]) and args[1] in comparisonOperators and is_number(args[2])
 
 
+# Returns true if the specified expression is an inequality, returns false otherwise
+def is_inequality(expression: str) -> bool:
+    args = re.split("\\s+", expression)
+    if len(args) != 3 and len(args) != 5:
+        return False
+    return (len(args) == 3 and (() or ())) or ()
+
+
 # Returns true if the number is even, returns false otherwise
 def is_even(number: int) -> bool:
     return number % 2 == 0
