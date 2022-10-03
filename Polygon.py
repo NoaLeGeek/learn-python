@@ -3,6 +3,7 @@ import turtle
 
 # Draws a square depending on length and pen's size
 def draw_square(length: int = 50, speed: int = 1, pensize: int = 1):
+    print("e")
     draw_polygon(length, 4, speed, pensize)
 
 

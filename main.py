@@ -8,15 +8,8 @@ import math
 
 
 def main():
-    x = 0
-    y = randint(0, 100)
-    while y != 1:
-        y = math.floor(y / 2)
-        print(y)
-        x += 1
-    print(x)
-    print(x * 1.5)
-    Games.guess_number()
+    x = input("une intervalle svp\n")
+    print(MathsUtils.is_inequality_with_absolute(x))
 
 
 if __name__ == '__main__':
