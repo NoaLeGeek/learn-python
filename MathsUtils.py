@@ -36,10 +36,8 @@ def inequality_with_absolute(expression: str) -> bool:
 
 # Returns true if the specified expression is an inequality, returns false otherwise
 def is_inequality(expression: str) -> bool:
-    args = re.split("\\s+", expression)
-    if len(args) != 3 and len(args) != 5:
-        return False
-    return (len(args) == 3 and (() or ())) or ()
+    args = re.split("\s+", expression)
+    return re.match("(^[a-zA-Z] (=|!=|>|>=|<|<=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) (=|!=|>|>=|<|<=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (>|>=|<|<=) [a-zA-Z] (>|>=|<|<=) (-?\d+(.\d+)?)$)", expression) is not None and args[1] == args[3] and (((float(args[0]) if is_float_number(args[0]) else int(args[0])) < (float(args[4]) if is_float_number(args[4]) else int(args[4]))) if "<" in args[1] else ((float(args[4]) if is_float_number(args[4]) else int(args[4])) > (float(args[0]) if is_float_number(args[0]) else int(args[0]))))
 
 
 # Returns true if the number is even, returns false otherwise
