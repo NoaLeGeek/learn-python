@@ -28,16 +28,24 @@ def is_float_number(string: str) -> bool:
 
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
 def inequality_with_absolute(expression: str) -> bool:
-    args = re.split("\\s+", expression)
-    if len(args) != 3:
-        return False
-    return args[0].startswith("|") and args[0].endswith("|") and not is_number(list(args[0])[1]) and list(args[0])[2] in ["-", "+"] and is_number(args[0][3:][:-1]) and args[1] in comparisonOperators and is_number(args[2])
+    return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
 
 
 # Returns true if the specified expression is an inequality, returns false otherwise
 def is_inequality(expression: str) -> bool:
     args = re.split("\s+", expression)
-    return re.match("(^[a-zA-Z] (=|!=|>|>=|<|<=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) (=|!=|>|>=|<|<=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (>|>=|<|<=) [a-zA-Z] (>|>=|<|<=) (-?\d+(.\d+)?)$)", expression) is not None and args[1] == args[3] and (((float(args[0]) if is_float_number(args[0]) else int(args[0])) < (float(args[4]) if is_float_number(args[4]) else int(args[4]))) if "<" in args[1] else ((float(args[4]) if is_float_number(args[4]) else int(args[4])) > (float(args[0]) if is_float_number(args[0]) else int(args[0]))))
+    return re.match(
+        "(^[a-zA-Z] (=|!=|>|>=|<|<=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) (=|!=|>|>=|<|<=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (>|>=|<|<=) [a-zA-Z] (>|>=|<|<=) (-?\d+(.\d+)?)$)",
+        expression) is not None and args[1] == args[3] and (((float(args[0]) if is_float_number(args[0]) else int(
+        args[0])) < (float(args[4]) if is_float_number(args[4]) else int(args[4]))) if "<" in args[1] else (
+                (float(args[4]) if is_float_number(args[4]) else int(args[4])) > (
+            float(args[0]) if is_float_number(args[0]) else int(args[0]))))
+
+
+# Return true if the specified expression is an interval, return false otherwise
+def is_interval(expression: str) -> bool:
+    args = re.split("\s+", expression)
+    return re.match("(^(\[|\])(-∞|(-?\d+(.\d+)?));(\+?∞|(-?\d+(.\d+)?))(\[|\])$)|(^\]-∞;(-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?∞\[$)", expression) is not None and ((len(args) == 3 and (float(args[0].split(";")[1][:-1]) if is_float_number(args[0].split(";")[1][:-1]) else int(args[0].split(";")[1][:-1])) < (float(args[2].split(";")[0][1:]) if is_float_number(args[2].split(";")[0][1:]) else int(args[2].split(";")[0][1:])) and args[0].split(";")[-1] != args[2].split(";")[0]) or (len(args) == 1 and ((args[0].split(";")[0][1:] == "-∞" or args[0].split(";")[1][:-1] in ["∞", "+∞"]) or (float(args[0].split(";")[0][1:]) if is_float_number(args[0].split(";")[0][1:]) else int(args[0].split(";")[0][1:])) < (float(args[0].split(";")[1][:-1]) if is_float_number(args[0].split(";")[1][:-1]) else int(args[0].split(";")[1][:-1])))))
 
 
 # Returns true if the number is even, returns false otherwise
@@ -47,7 +55,7 @@ def is_even(number: int) -> bool:
 
 # Returns true if the number is prime, returns false otherwise
 def is_prime(number: int) -> bool:
-    for x in range(2, int(number**0.5) + 1):
+    for x in range(2, int(number ** 0.5) + 1):
         if number % x == 0:
             return False
     return True

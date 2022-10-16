@@ -8,8 +8,8 @@ import math
 
 
 def main():
-    x = input("une inéquation svp\n")
-    print(MathsUtils.is_inequality(x))
+    x = input("une intervalle svp\n")
+    print(MathsUtils.is_interval(x))
 
 
 if __name__ == '__main__':
