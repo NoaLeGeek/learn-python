@@ -30,6 +30,7 @@ def is_float_number(string: str) -> bool:
 def inequality_with_absolute(expression: str) -> bool:
     return re.match("^[a-zA-Z] (E|∈) \|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
 
+# TODO inequality_with_absolute and is_interval maybe needing to correct conditions after regex
 
 # Returns true if the specified expression is an inequality, returns false otherwise
 def is_inequality(expression: str) -> bool:
