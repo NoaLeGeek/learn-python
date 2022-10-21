@@ -28,7 +28,7 @@ def is_float_number(string: str) -> bool:
 
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
 def inequality_with_absolute(expression: str) -> bool:
-    return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
+    return re.match("^[a-zA-Z] (E|∈) \|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
 
 
 # Returns true if the specified expression is an inequality, returns false otherwise
@@ -45,7 +45,7 @@ def is_inequality(expression: str) -> bool:
 # Return true if the specified expression is an interval, return false otherwise
 def is_interval(expression: str) -> bool:
     args = re.split("\s+", expression)
-    return re.match("(^(\[|\])(-∞|(-?\d+(.\d+)?));(\+?∞|(-?\d+(.\d+)?))(\[|\])$)|(^\]-∞;(-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?∞\[$)", expression) is not None and ((len(args) == 3 and (float(args[0].split(";")[1][:-1]) if is_float_number(args[0].split(";")[1][:-1]) else int(args[0].split(";")[1][:-1])) < (float(args[2].split(";")[0][1:]) if is_float_number(args[2].split(";")[0][1:]) else int(args[2].split(";")[0][1:])) and args[0].split(";")[-1] != args[2].split(";")[0]) or (len(args) == 1 and ((args[0].split(";")[0][1:] == "-∞" or args[0].split(";")[1][:-1] in ["∞", "+∞"]) or (float(args[0].split(";")[0][1:]) if is_float_number(args[0].split(";")[0][1:]) else int(args[0].split(";")[0][1:])) < (float(args[0].split(";")[1][:-1]) if is_float_number(args[0].split(";")[1][:-1]) else int(args[0].split(";")[1][:-1])))))
+    return re.match("^[a-zA-Z] (∈|E) (((\[|\])(-∞|(-?\d+(.\d+)?));(\+?∞|(-?\d+(.\d+)?))(\[|\])$)|(\]-∞;(-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?∞\[$))", expression) is not None and ((len(args) == 3 and (float(args[0].split(";")[1][:-1]) if is_float_number(args[0].split(";")[1][:-1]) else int(args[0].split(";")[1][:-1])) < (float(args[2].split(";")[0][1:]) if is_float_number(args[2].split(";")[0][1:]) else int(args[2].split(";")[0][1:])) and args[0].split(";")[-1] != args[2].split(";")[0]) or (len(args) == 1 and ((args[0].split(";")[0][1:] == "-∞" or args[0].split(";")[1][:-1] in ["∞", "+∞"]) or (float(args[0].split(";")[0][1:]) if is_float_number(args[0].split(";")[0][1:]) else int(args[0].split(";")[0][1:])) < (float(args[0].split(";")[1][:-1]) if is_float_number(args[0].split(";")[1][:-1]) else int(args[0].split(";")[1][:-1])))))
 
 
 # Returns true if the number is even, returns false otherwise
