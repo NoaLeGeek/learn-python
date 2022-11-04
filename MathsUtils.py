@@ -28,7 +28,7 @@ def is_float_number(string: str) -> bool:
 
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
 def inequality_with_absolute(expression: str) -> bool:
-    return re.match("^[a-zA-Z] (E|∈) \|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
+    return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
 
 
 # Returns true if the specified expression is an inequality, returns false otherwise
