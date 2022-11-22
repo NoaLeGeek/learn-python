@@ -28,14 +28,14 @@ def is_float_number(string: str) -> bool:
 
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
 def inequality_with_absolute(expression: str) -> bool:
-    return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| (=|!=|>|>=|<|<=) (-?\d+(.\d+)?)$", expression) is not None
+    return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| ((<|>)=?|!=|=) (-?\d+(.\d+)?)$", expression) is not None
 
 
 # Returns true if the specified expression is an inequality, returns false otherwise
 def is_inequality(expression: str) -> bool:
     args = re.split("\s+", expression)
     return re.match(
-        "(^[a-zA-Z] (=|!=|>|>=|<|<=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) (=|!=|>|>=|<|<=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (>|>=|<|<=) [a-zA-Z] (>|>=|<|<=) (-?\d+(.\d+)?)$)",
+        "(^[a-zA-Z] ((<|>)=?|!=|=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) ((<|>)=?|!=|=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (?P<operation>(<|>))=? (?P<letter>[a-zA-Z]) ((U (?P=letter) (?=(?!(!=|=)))(?P=operation) (-?\d+(.\d+)?))|((?P=operation)=? (-?\d+(.\d+)?)))$)",
         expression) is not None and args[1] == args[3] and (((float(args[0]) if is_float_number(args[0]) else int(
         args[0])) < (float(args[4]) if is_float_number(args[4]) else int(args[4]))) if "<" in args[1] else (
                 (float(args[4]) if is_float_number(args[4]) else int(args[4])) > (
