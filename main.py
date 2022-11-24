@@ -8,8 +8,7 @@ import math
 
 
 def main():
-    x = input("une intervalle svp\n")
-    print(MathsUtils.is_interval(x))
+    x = 0
 
 
 if __name__ == '__main__':
