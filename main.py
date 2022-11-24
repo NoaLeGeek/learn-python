@@ -8,7 +8,7 @@ import math
 
 
 def main():
-    x = 0
+    x = 1
 
 
 if __name__ == '__main__':
