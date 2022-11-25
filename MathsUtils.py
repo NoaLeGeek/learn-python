@@ -36,16 +36,7 @@ def is_inequality(expression: str) -> bool:
     args = re.split("\s+", expression)
     return re.match(
         "(^[a-zA-Z] ((<|>)=?|!=|=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) ((<|>)=?|!=|=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (?P<operation>(<|>))=? (?P<letter>[a-zA-Z]) ((U (?P=letter) (?!(?P=operation))(<|>)=? (-?\d+(.\d+)?))|((?P=operation)=? (-?\d+(.\d+)?)))$)",
-        expression) is not None and ((len(args) == 5
-                                        and (min(float(args[0]), float(args[4])) if "<" in args[1] else max(float(args[0]), float(args[4]))))
-                                     or (len(args) == 7
-                                        and (min(float(args[0]), float(args[6])) if "<" in args[1] else max(float(args[0]), float(args[6])))
-                                        and ))
-
-           #args[1] == args[3] and (((float(args[0]) if is_float_number(args[0]) else int(
-        #args[0])) < (float(args[4]) if is_float_number(args[4]) else int(args[4]))) if "<" in args[1] else (
-                #(float(args[4]) if is_float_number(args[4]) else int(args[4])) > (
-            #float(args[0]) if is_float_number(args[0]) else int(args[0]))))
+        expression) is not None and (float(args[0]) < float(args[4 if len(args) == 5 else 6]) if "<" in args[1] else float(args[0]) > float(args[4 if len(args) == 5 else 6]))
 
 
 # Return true if the specified expression is an interval, return false otherwise
