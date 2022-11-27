@@ -38,11 +38,11 @@ def is_inequality(expression: str) -> bool:
         "(^[a-zA-Z] ((<|>)=?|!=|=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) ((<|>)=?|!=|=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (?P<operation>(<|>))=? (?P<letter>[a-zA-Z]) ((U (?P=letter) (?!(?P=operation))(<|>)=? (-?\d+(.\d+)?))|((?P=operation)=? (-?\d+(.\d+)?)))$)",
         expression) is not None and (len(args) == 3 or (float(args[0]) < float(args[4 if len(args) == 5 else 6]) if "<" in args[1] else float(args[0]) > float(args[4 if len(args) == 5 else 6])))
 
-# TODO accept -inf or inf
+
 # Return true if the specified expression is an interval, return false otherwise
 def is_interval(expression: str) -> bool:
     args = re.split("\s+", expression)
-    return re.match("^[a-zA-Z] (∈|E) (((\[-?\d+(.\d+)?|\](-?\d+(.\d+)?|-∞));((-?\d+(.\d+)?|\+?∞)\[|-?\d+(.\d+)?\])$)|(\]-∞;-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?∞\[$)", expression) is not None \
+    return re.match("^[a-zA-Z] (∈|E) (((\[-?\d+(.\d+)?|\](-?\d+(.\d+)?|-(∞|inf)));((-?\d+(.\d+)?|\+?(∞|inf))\[|-?\d+(.\d+)?\])$)|(\]-(∞|inf);-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?(∞|inf)\[$)", expression) is not None \
            and ((len(args) == 3
                  and ((args[2].split(";")[0][1:] == "-∞" or "∞" in args[2].split(";")[1][:-1])
                  or float(args[2].split(";")[0][1:]) < float(args[2].split(";")[1][:-1])))
@@ -93,7 +93,7 @@ def translations_expression(expression: str) -> list[str]:
             case 3:
                 interval += (("]-∞;" + args[0 if is_number(args[0]) else 2] + ("]" if "=" in args[1] else "[")) if ((is_number(args[0]) and ">" in args[1]) or (not is_number(args[0]) and "<" in args[1])) else (("[" if "=" in args[1] else "]") + args[0 if is_number(args[0]) else 2] + ";+∞["))
             case 5:
-                interval += "E"
+                interval += (("[" if "=" in args[1] else "]") + (args[0] if "<" in args[1] else args[4]) + ";" + (args[4] if "<" in args[3] else args[0]) + ("]" if "=" in args[3] else "["))
             case 7:
                 interval += "E"
         lizt.append(interval)
@@ -103,7 +103,7 @@ def translations_expression(expression: str) -> list[str]:
     elif is_inequality_with_absolute(expression):
         return lizt
     else:
-        return ["No possible translation"]
-#TODO maybe transform this return into a exception
+        raise SyntaxError("The specified expression has no possible translation")
+
 
 
