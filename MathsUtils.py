@@ -27,7 +27,7 @@ def is_float_number(string: str) -> bool:
 
 
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
-def inequality_with_absolute(expression: str) -> bool:
+def is_inequality_with_absolute(expression: str) -> bool:
     return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| ((<|>)=?|!=|=) (-?\d+(.\d+)?)$", expression) is not None
 
 
@@ -36,9 +36,9 @@ def is_inequality(expression: str) -> bool:
     args = re.split("\s+", expression)
     return re.match(
         "(^[a-zA-Z] ((<|>)=?|!=|=) (-?\d+(.\d+)?$)$)|(^(-?\d+(.\d+)?) ((<|>)=?|!=|=) [a-zA-Z]$)|(^(-?\d+(.\d+)?) (?P<operation>(<|>))=? (?P<letter>[a-zA-Z]) ((U (?P=letter) (?!(?P=operation))(<|>)=? (-?\d+(.\d+)?))|((?P=operation)=? (-?\d+(.\d+)?)))$)",
-        expression) is not None and (float(args[0]) < float(args[4 if len(args) == 5 else 6]) if "<" in args[1] else float(args[0]) > float(args[4 if len(args) == 5 else 6]))
+        expression) is not None and (len(args) == 3 or (float(args[0]) < float(args[4 if len(args) == 5 else 6]) if "<" in args[1] else float(args[0]) > float(args[4 if len(args) == 5 else 6])))
 
-
+# TODO accept -inf or inf
 # Return true if the specified expression is an interval, return false otherwise
 def is_interval(expression: str) -> bool:
     args = re.split("\s+", expression)
@@ -78,3 +78,32 @@ def get_divisors(number: int) -> list:
     lizt = get_divisors_without_itself(number)
     lizt.append(number)
     return lizt
+
+
+# Returns a list of the possible translations of a specified mathematical expression
+def translations_expression(expression: str) -> list[str]:
+    lizt = []
+    if is_inequality(expression):
+        # re.search("(?!(\d|U))\w", expression).group(0) is collecting the first alphabetic letter from the expression
+        letter = re.search("(?!(\d|U))\w", expression).group(0)
+        args = re.split("\s+", expression)
+        # Interval translation
+        interval = letter + " ∈ "
+        match len(re.split("\s+", expression)):
+            case 3:
+                interval += (("]-∞;" + args[0 if is_number(args[0]) else 2] + ("]" if "=" in args[1] else "[")) if ((is_number(args[0]) and ">" in args[1]) or (not is_number(args[0]) and "<" in args[1])) else (("[" if "=" in args[1] else "]") + args[0 if is_number(args[0]) else 2] + ";+∞["))
+            case 5:
+                interval += "E"
+            case 7:
+                interval += "E"
+        lizt.append(interval)
+        return lizt
+    elif is_interval(expression):
+        return lizt
+    elif is_inequality_with_absolute(expression):
+        return lizt
+    else:
+        return ["No possible translation"]
+#TODO maybe transform this return into a exception
+
+
