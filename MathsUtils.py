@@ -28,23 +28,23 @@ def is_float_number(string: str) -> bool:
 
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
 def is_inequality_with_absolute(expression: str) -> bool:
-    return re.match("^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| ((<|>)=?|!=|=) (-?\d+(.\d+)?)$", expression) is not None
+    return re.match(r"^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| ((<|>)=?|!=|=) (-?\d+(.\d+)?)$", expression) is not None
 
 
 # Returns true if the specified expression is an inequality, returns false otherwise
 def is_inequality(expression: str) -> bool:
     args = re.split("\s+", expression)
     return re.match(
-        "^([a-zA-Z] ((<|>)=?|!=|=) -?\d+(.\d+)?$)$|(^-?\d+(.\d+)? ((<|>)=?|!=|=) [a-zA-Z]$)|(^-?\d+(.\d+)? (?P<operation>(<|>))=? [a-zA-Z] (?P=operation)=? -?\d+(.\d+)?)|((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?))|((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))$",
+        r"^([a-zA-Z] ((<|>)=?|!=|=) -?\d+(.\d+)?$)$|(^-?\d+(.\d+)? ((<|>)=?|!=|=) [a-zA-Z]$)|(^-?\d+(.\d+)? (?P<operation>(<|>))=? [a-zA-Z] (?P=operation)=? -?\d+(.\d+)?)|((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?))|((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))$",
         expression) is not None and (len(args) == 3
                                      or (len(args) == 5 and (float(args[0]) < float(args[4 if len(args) == 5 else 6]) if "<" in args[1] else float(args[0]) > float(args[4 if len(args) == 5 else 6])))
-                                     or (len(args) == 7 and (list(filter(is_number, args))[0] < list(filter(is_number, args))[1] if re.match("((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[0] > list(filter(is_number, args))[1])))
+                                     or (len(args) == 7 and (float(list(filter(is_number, args))[0]) < float(list(filter(is_number, args))[1]) if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else float(list(filter(is_number, args))[0]) > float(list(filter(is_number, args))[1]))))
 
 
 # Return true if the specified expression is an interval, return false otherwise
 def is_interval(expression: str) -> bool:
     args = re.split("\s+", expression)
-    return re.match("^[a-zA-Z] (∈|E) (((\[-?\d+(.\d+)?|\](-?\d+(.\d+)?|-(∞|inf)));((-?\d+(.\d+)?|\+?(∞|inf))\[|-?\d+(.\d+)?\])$)|(\]-(∞|inf);-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?(∞|inf)\[$)", expression) is not None \
+    return re.match(r"^[a-zA-Z] (∈|E) (((\[-?\d+(.\d+)?|\](-?\d+(.\d+)?|-(∞|inf)));((-?\d+(.\d+)?|\+?(∞|inf))\[|-?\d+(.\d+)?\])$)|(\]-(∞|inf);-?\d+(.\d+)?)(\[|\]) U (\[|\])(-?\d+(.\d+)?);\+?(∞|inf)\[$)", expression) is not None \
            and ((len(args) == 3
                  and ((args[2].split(";")[0][1:] == "-∞" or "∞" in args[2].split(";")[1][:-1])
                  or float(args[2].split(";")[0][1:]) < float(args[2].split(";")[1][:-1])))
@@ -102,16 +102,17 @@ def translations_expression(expression: str) -> list[str]:
             case 5:
                 translation = translation.format(("[" if "=" in args[1] else "]"), (args[0] if "<" in args[1] else args[4]), (args[4] if "<" in args[3] else args[0]), ("]" if "=" in args[3] else "["))
             case 7:
-                translation = translation.format("]", "-∞", (list(filter(is_number, expression))[0] if re.match("((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, expression))[1]), ("]" if "=" in args[1] else "["), ("[" if "=" in args[5] else "]"), (list(filter(is_number, expression))[1] if re.match("((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, expression))[0]), "+∞", "[")
+                translation = translation.format("]", "-∞", (list(filter(is_number, args))[0] if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[1]), ("]" if "=" in args[1] else "["), ("[" if "=" in args[5] else "]"), (list(filter(is_number, args))[1] if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[0]), "+∞", "[")
         lizt.append(translation)
         # Inequality with absolute value translation
         translation = ""
-        if len(args) != 3:
-            translation = "|"
+        if len(args) != 3 and (args[1] == args[3] or ("=" in args[1] and "=" in args[5]) or ("=" not in args[1] and "=" not in args[5])):
+            lizt.append("|" + letter + re.sub(r"(\.0)$", "", "{:+}".format(-((float(list(filter(is_number, args))[0]) + float(list(filter(is_number, args))[1]))/2))) + "| {} {}".format(">" if len(args) == 7 else "<", re.sub(r"(\.0)$", "", str((float(list(filter(is_number, args))[1]) - float(list(filter(is_number, args))[0]))/2))))
         return lizt
     elif is_interval(expression):
         return lizt
     elif is_inequality_with_absolute(expression):
+        # TODO don't forget that != and = exist so there will be smth like {x, y, z...}
         return lizt
     else:
         raise SyntaxError("The specified expression has no possible translation")
