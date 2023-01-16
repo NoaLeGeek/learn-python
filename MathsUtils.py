@@ -90,15 +90,15 @@ def translations_expression(expression: str) -> list[str]:
         letter = re.search("(?!(\d|U))\w", expression).group(0)
         args = re.split("\s+", expression)
         # Interval translation
-        translation = letter + " ∈ " + ("{}{};{}{}" if len(args) != 7 else "{}{};{}{} U {}{};{}{}")
+        translation = letter + " ∈ " + ("{}{};{}{}" if len(args) == 5 or (len(args) == 3 and args[1] != "!=") else "{}{};{}{} U {}{};{}{}")
         match len(args):
             case 3:
                 if args[1] == "=":
-                    translation = translation.format("[", args[2 if is_number(args[2]) else 0], ";", args[2 if is_number(args[2]) else 0], "]")
+                    translation = translation.format("[", args[2 if is_number(args[2]) else 0], args[2 if is_number(args[2]) else 0], "]")
                 elif args[1] == "!=":
-                    translation = translation.format("]-∞;", args[2 if is_number(args[2]) else 0], "[ U ]", args[2 if is_number(args[2]) else 0], ";+∞[")
+                    translation = translation.format("]", "-∞", args[2 if is_number(args[2]) else 0], "[", "]", args[2 if is_number(args[2]) else 0], "+∞", "[")
                 else:
-                    translation = translation.format("]", "-∞", args[0 if is_number(args[0]) else 2], ("]" if "=" in args[1] else "[") if ((is_number(args[0]) and ">" in args[1]) or (not is_number(args[0]) and "<" in args[1])) else ("[" if "=" in args[1] else "]"), args[0 if is_number(args[0]) else 2], "+∞", "[")
+                    translation = translation.format(*(("]", "-∞", args[0 if is_number(args[0]) else 2], ("]" if "=" in args[1] else "[")) if (is_number(args[0]) and ">" in args[1]) or (not is_number(args[0]) and "<" in args[1]) else (("[" if "=" in args[1] else "]"), args[0 if is_number(args[0]) else 2], "+∞", "[")))
             case 5:
                 translation = translation.format(("[" if "=" in args[1] else "]"), (args[0] if "<" in args[1] else args[4]), (args[4] if "<" in args[3] else args[0]), ("]" if "=" in args[3] else "["))
             case 7:
@@ -106,13 +106,15 @@ def translations_expression(expression: str) -> list[str]:
         lizt.append(translation)
         # Inequality with absolute value translation
         translation = ""
-        if len(args) != 3 and (args[1] == args[3] or ("=" in args[1] and "=" in args[5]) or ("=" not in args[1] and "=" not in args[5])):
-            lizt.append("|" + letter + re.sub(r"(\.0)$", "", "{:+}".format(-((float(list(filter(is_number, args))[0]) + float(list(filter(is_number, args))[1]))/2))) + "| {} {}".format(">" if len(args) == 7 else "<", re.sub(r"(\.0)$", "", str((float(list(filter(is_number, args))[1]) - float(list(filter(is_number, args))[0]))/2))))
+        if len(args) != 3 and (args[1] == args[3] or not (("=" in args[1]) ^ ("=" in args[5]))):
+            lizt.append("|" + letter + re.sub(r"(\.0)$", "", "{:+}".format(-((float(list(filter(is_number, args))[0]) + float(list(filter(is_number, args))[1]))/2))) + "| {} {}".format((">{}" if len(args) == 7 else "<{}").format("=" if "=" in args[1] else ""), re.sub(r"(\.0)$", "", str((float(list(filter(is_number, args))[1 if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else 0]) - float(list(filter(is_number, args))[0 if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else 1]))/2))))
         return lizt
     elif is_interval(expression):
+        letter = ""
+        args = re.split("\s+", expression)
         return lizt
     elif is_inequality_with_absolute(expression):
-        # TODO don't forget that != and = exist so there will be smth like {x, y, z...}
+        # TODO don't forget that != and = exist so there will be smth like {x, y, z, a, b, h...}
         return lizt
     else:
         raise SyntaxError("The specified expression has no possible translation")
