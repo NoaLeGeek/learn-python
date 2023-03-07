@@ -119,8 +119,8 @@ def translations_expression(expression: str) -> list[str]:
         match len(args):
             case 3:
                 if args[2][1:-1].split(";")[0] == args[2][1:-1].split(";")[1]:
-                    lizt.append("{}{}{}".format(letter, " = ", args[2][1:-1].split(";")[0]))
-                    translation = "{}{}{}".format(args[2][1:-1].split(";")[0], " = ", letter)
+                    lizt.append("{} {} {}".format(letter, "=", args[2][1:-1].split(";")[0]))
+                    translation = "{} {} {}".format(args[2][1:-1].split(";")[0], "=", letter)
                 elif "∞" in args[2] or "inf" in args[2]:
                     lizt.append("{} {}{} {}".format(letter, ("<" if args[2][1:-1].split(";")[0] in ["-∞", "-inf"] else ">"), ("=" if len(set(args[2].split(r"-?\d+(.\d+)?;-?\d+(.\d+)?"))) == 1 else ""), args[2][1:-1].split(";")[0 if is_number(args[2][1:-1].split(";")[0]) else 1]))
                     translation = "{} {}{} {}".format(args[2][1:-1].split(";")[0 if is_number(args[2][1:-1].split(";")[0]) else 1], (">" if args[2][1:-1].split(";")[0] in ["-∞", "-inf"] else "<"), ("=" if len(set(args[2].split(r"-?\d+(.\d+)?;-?\d+(.\d+)?"))) == 1 else ""), letter)
@@ -138,8 +138,8 @@ def translations_expression(expression: str) -> list[str]:
                     translation = "{} {}{} {} {} {} {}{} {}".format(args[2][1:-1].split(";")[1], ">", ("=" if args[2][-1] == "]" else ""), letter, "U", args[4][1:-1].split(";")[0], "<", ("=" if args[4][0] == "[" else ""), letter)
         lizt.append(translation)
         # Inequality with absolute value translation
-        if (args[2][0] == args[2][-1]) or (len(args) == 5 and args[2][-1] == args[4][0]):
-            lizt.append("|{}|".format(letter, ""))
+        if (args[2][0] != args[2][-1]) or (len(args) == 5 and args[2][-1] != args[4][0]):
+            lizt.append("|{}{}| {}{} {}".format(letter, re.sub(r"(\.0)$", "", "{:+}".format(-((float((args[2][1:-1].split(";")[0] if len(args) == 3 else args[2][1:-1].split(";")[1])) + float((args[2][1:-1].split(";")[1] if len(args) == 3 else args[4][1:-1].split(";")[0])))/2))), (">" if len(args) == 5 else "<"), ("=" if args[2][-1] == "]" else ""), re.sub(r"(\.0)$", "", str((float((args[2][1:-1].split(";")[1] if len(args) == 3 else args[4][1:-1].split(";")[0])) - float((args[2][1:-1].split(";")[0] if len(args) == 3 else args[2][1:-1].split(";")[1])))/2))))
         return lizt
     elif is_inequality_with_absolute(expression):
         # TODO don't forget that != and = exist so there will be smth like {x, y, z, a, b, h...}
