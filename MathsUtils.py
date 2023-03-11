@@ -37,10 +37,10 @@ def is_inequality_with_absolute(expression: str) -> bool:
 def is_inequality(expression: str) -> bool:
     args = re.split("\s+", expression)
     return re.match(
-        r"^([a-zA-Z] ((<|>)=?|!=|=) -?\d+(.\d+)?$)$|(^-?\d+(.\d+)? ((<|>)=?|!=|=) [a-zA-Z]$)|(^-?\d+(.\d+)? (?P<operation>(<|>))=? [a-zA-Z] (?P=operation)=? -?\d+(.\d+)?)|((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?))|((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))$",
+        r"^([a-zA-Z] ((<|>)=?|!=|=) -?\d+(.\d+)?$)$|(^-?\d+(.\d+)? ((<|>)=?|!=|=) [a-zA-Z]$)|(^-?\d+(.\d+)? (?P<operation>(<|>))=? [a-zA-Z] (?P=operation)=? -?\d+(.\d+)?)|((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?))|((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))$",
         expression) is not None and (len(args) == 3
                                      or (len(args) == 5 and (float(args[0]) <= float(args[4 if len(args) == 5 else 6]) if "<" in args[1] else float(args[0]) >= float(args[4 if len(args) == 5 else 6])))
-                                     or (len(args) == 7 and (float(list(filter(is_number, args))[0]) <= float(list(filter(is_number, args))[1]) if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else float(list(filter(is_number, args))[0]) >= float(list(filter(is_number, args))[1]))))
+                                     or (len(args) == 7 and (float(list(filter(is_number, args))[0]) <= float(list(filter(is_number, args))[1]) if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else float(list(filter(is_number, args))[0]) >= float(list(filter(is_number, args))[1]))))
 
 
 # Return true if the specified expression is an interval, return false otherwise
@@ -88,8 +88,8 @@ def get_divisors(number: int) -> list:
 def translations_expression(expression: str) -> list[str]:
     lizt = []
     if is_inequality(expression):
-        # re.search("(?!(\d|U))\w", expression).group(0) is collecting the first alphabetic letter from the expression
-        letter = re.search("(?!(\d|U))\w", expression).group(0)
+        # re.search("(?!(\d|OR|U))\w", expression).group(0) is collecting the first alphabetic letter from the expression
+        letter = re.search("(?!(\d|OR|U))\w", expression).group(0)
         args = re.split("\s+", expression)
         # Interval translation
         translation = letter + " ∈ " + ("{}{};{}{}" if len(args) == 5 or (len(args) == 3 and args[1] != "!=") else "{}{};{}{} U {}{};{}{}")
@@ -104,45 +104,64 @@ def translations_expression(expression: str) -> list[str]:
             case 5:
                 translation = translation.format(("[" if "=" in args[1] else "]"), (args[0] if "<" in args[1] else args[4]), (args[4] if "<" in args[3] else args[0]), ("]" if "=" in args[3] else "["))
             case 7:
-                translation = translation.format("]", "-∞", (list(filter(is_number, args))[0] if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[1]), ("]" if "=" in args[1] else "["), ("[" if "=" in args[5] else "]"), (list(filter(is_number, args))[1] if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[0]), "+∞", "[")
+                translation = translation.format("]", "-∞", (list(filter(is_number, args))[0] if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[1]), ("]" if "=" in args[1] else "["), ("[" if "=" in args[5] else "]"), (list(filter(is_number, args))[1] if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else list(filter(is_number, args))[0]), "+∞", "[")
         lizt.append(translation)
         # Inequality with absolute value translation
         translation = ""
         if len(args) != 3 and (args[1] == args[3] or not (("=" in args[1]) ^ ("=" in args[5]))):
-            lizt.append("|{}{}| {}{} {}".format(letter, re.sub(r"(\.0)$", "", "{:+}".format(-((float(list(filter(is_number, args))[0]) + float(list(filter(is_number, args))[1]))/2))), (">" if len(args) == 7 else "<"), ("=" if "=" in args[1] else ""), re.sub(r"(\.0)$", "", str((float(list(filter(is_number, args))[1 if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else 0]) - float(list(filter(is_number, args))[0 if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) U ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else 1]))/2))))
+            lizt.append("|{}{}| {}{} {}".format(letter, re.sub(r"(\.0)$", "", "{:+}".format(-((float(list(filter(is_number, args))[0]) + float(list(filter(is_number, args))[1]))/2))), (">" if len(args) == 7 else "<"), ("=" if "=" in args[1] else ""), re.sub(r"(\.0)$", "", str((float(list(filter(is_number, args))[1 if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else 0]) - float(list(filter(is_number, args))[0 if re.match(r"((-?\d+(.\d+)? >=? [a-zA-Z])|([a-zA-Z] <=? -?\d+(.\d+)?)) OR ((-?\d+(.\d+)? <=? [a-zA-Z])|([a-zA-Z] >=? -?\d+(.\d+)?))", expression) is not None else 1]))/2))))
         return lizt
     elif is_interval(expression):
-        letter = re.search("(?!(\d|U))\w", expression).group(0)
+        letter = re.search("(?!(\d|OR|U))\w", expression).group(0)
         args = re.split("\s+", expression)
         translation = ""
         # Inequation translation
         match len(args):
             case 3:
                 if args[2][1:-1].split(";")[0] == args[2][1:-1].split(";")[1]:
-                    lizt.append("{} {} {}".format(letter, "=", args[2][1:-1].split(";")[0]))
-                    translation = "{} {} {}".format(args[2][1:-1].split(";")[0], "=", letter)
+                    lizt.append("{} = {}".format(letter, args[2][1:-1].split(";")[0]))
+                    translation = "{} = {}".format(args[2][1:-1].split(";")[0], letter)
                 elif "∞" in args[2] or "inf" in args[2]:
                     lizt.append("{} {}{} {}".format(letter, ("<" if args[2][1:-1].split(";")[0] in ["-∞", "-inf"] else ">"), ("=" if len(set(args[2].split(r"-?\d+(.\d+)?;-?\d+(.\d+)?"))) == 1 else ""), args[2][1:-1].split(";")[0 if is_number(args[2][1:-1].split(";")[0]) else 1]))
                     translation = "{} {}{} {}".format(args[2][1:-1].split(";")[0 if is_number(args[2][1:-1].split(";")[0]) else 1], (">" if args[2][1:-1].split(";")[0] in ["-∞", "-inf"] else "<"), ("=" if len(set(args[2].split(r"-?\d+(.\d+)?;-?\d+(.\d+)?"))) == 1 else ""), letter)
                 else:
-                    lizt.append("{} {}{} {} {}{} {}".format(args[2][1:-1].split(";")[0], "<", ("=" if args[2][0] == "[" else ""), letter, "<", ("=" if args[2][-1] == "]" else ""), args[2][1:-1].split(";")[1]))
-                    translation = "{} {}{} {} {}{} {}".format(args[2][1:-1].split(";")[1], ">", ("=" if args[2][-1] == "]" else ""), letter, ">", ("=" if args[2][0] == "[" else ""), args[2][1:-1].split(";")[0])
+                    lizt.append("{} <{} {} <{} {}".format(args[2][1:-1].split(";")[0], ("=" if args[2][0] == "[" else ""), letter, ("=" if args[2][-1] == "]" else ""), args[2][1:-1].split(";")[1]))
+                    translation = "{} >{} {} >{} {}".format(args[2][1:-1].split(";")[1], ("=" if args[2][-1] == "]" else ""), letter, ("=" if args[2][0] == "[" else ""), args[2][1:-1].split(";")[0])
             case 5:
                 if args[2][1:-1].split(";")[1] == args[4][1:-1].split(";")[0]:
-                    lizt.append("{} {} {}".format(letter, "!=", args[2][1:-1].split(";")[1]))
-                    translation = "{} {} {}".format(args[2][1:-1].split(";")[1], "!=", letter)
+                    lizt.append("{} != {}".format(letter, args[2][1:-1].split(";")[1]))
+                    translation = "{} != {}".format(args[2][1:-1].split(";")[1], letter)
                 else:
-                    for part in [("{} {}{} {}".format(letter, ">", ("=" if args[4][0] == "[" else ""), args[4][1:-1].split(";")[0])), ("{} {}{} {}".format(args[4][1:-1].split(";")[0], "<", ("=" if args[4][0] == "[" else ""), letter))]:
-                        lizt.append("{} {}{} {} {} {}".format(letter, "<", ("=" if args[2][-1] == "]" else ""), args[2][1:-1].split(";")[1], "U", part))
-                    lizt.append("{} {}{} {} {} {} {}{} {}".format(args[2][1:-1].split(";")[1], ">", ("=" if args[2][-1] == "]" else ""), letter, "U", letter, ">", ("=" if args[4][0] == "[" else ""), args[4][1:-1].split(";")[0]))
-                    translation = "{} {}{} {} {} {} {}{} {}".format(args[2][1:-1].split(";")[1], ">", ("=" if args[2][-1] == "]" else ""), letter, "U", args[4][1:-1].split(";")[0], "<", ("=" if args[4][0] == "[" else ""), letter)
+                    for part in [("{} >{} {}".format(letter, ("=" if args[4][0] == "[" else ""), args[4][1:-1].split(";")[0])), ("{} <{} {}".format(args[4][1:-1].split(";")[0], ("=" if args[4][0] == "[" else ""), letter))]:
+                        lizt.append("{} <{} {} OR {}".format(letter, ("=" if args[2][-1] == "]" else ""), args[2][1:-1].split(";")[1], part))
+                    lizt.append("{} >{} {} OR {} >{} {}".format(args[2][1:-1].split(";")[1], ("=" if args[2][-1] == "]" else ""), letter, letter, ("=" if args[4][0] == "[" else ""), args[4][1:-1].split(";")[0]))
+                    translation = "{} >{} {} OR {} <{} {}".format(args[2][1:-1].split(";")[1], ("=" if args[2][-1] == "]" else ""), letter, args[4][1:-1].split(";")[0], ("=" if args[4][0] == "[" else ""), letter)
         lizt.append(translation)
         # Inequality with absolute value translation
         if (args[2][0] != args[2][-1]) or (len(args) == 5 and args[2][-1] != args[4][0]):
             lizt.append("|{}{}| {}{} {}".format(letter, re.sub(r"(\.0)$", "", "{:+}".format(-((float((args[2][1:-1].split(";")[0] if len(args) == 3 else args[2][1:-1].split(";")[1])) + float((args[2][1:-1].split(";")[1] if len(args) == 3 else args[4][1:-1].split(";")[0])))/2))), (">" if len(args) == 5 else "<"), ("=" if args[2][-1] == "]" else ""), re.sub(r"(\.0)$", "", str((float((args[2][1:-1].split(";")[1] if len(args) == 3 else args[4][1:-1].split(";")[0])) - float((args[2][1:-1].split(";")[0] if len(args) == 3 else args[2][1:-1].split(";")[1])))/2))))
         return lizt
     elif is_inequality_with_absolute(expression):
-        # TODO don't forget that != and = exist so there will be smth like {x, y, z, a, b, h...}
+        letter = re.search("(?!(\d|OR|U))\w", expression).group(0)
+        args = re.split("\s+", expression)
+        translation = ""
+        numbers = [re.sub(r"(\.0)$", "", str(-(float(args[0][2:-1])) - float(args[2]))),
+                   re.sub(r"(\.0)$", "", str(-(float(args[0][2:-1])) + float(args[2])))]
+        if "<" in args[1]:
+            # Interval translation
+            lizt.append("{} ∈ {}{};{}{}".format(letter, ("[" if "=" in args[1] else "]"), *numbers, ("]" if "=" in args[1] else "[")))
+            # Inequality translation
+            lizt.append("{0} <{1} {2} <{1} {3}".format(numbers[0], ("=" if "=" in args[1] else ""), letter, numbers[1]))
+            translation = "{0} >{1} {2} >{1} {3}".format(numbers[1], ("=" if "=" in args[1] else ""), letter, numbers[0])
+        else:
+            # Interval translation
+            lizt.append("{} ∈ ]-∞;{}{} U {}{};+∞[".format(letter, numbers[0], ("]" if "=" in args[1] else "["), ("[" if "=" in args[1] else "]"), numbers[1]))
+            # Inequality translation
+            for part in [("{} >{} {}".format(letter, ("=" if "=" in args[1] else ""), numbers[1])), ("{} <{} {}".format(numbers[1], ("=" if "=" in args[1] else ""), letter))]:
+                lizt.append("{} <{} {} OR {}".format(letter, ("=" if "=" in args[1] else ""), numbers[0], part))
+            lizt.append("{0} >{1} {2} OR {2} >{1} {3}".format(numbers[0], ("=" if "=" in args[1] else ""), letter, numbers[1]))
+            translation = "{0} >{1} {2} OR {3} <{1} {2}".format(numbers[0], ("=" if "=" in args[1] else ""), letter, numbers[1])
+        lizt.append(translation)
         return lizt
     else:
         raise SyntaxError("The specified expression has no possible translation")
