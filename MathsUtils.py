@@ -1,9 +1,6 @@
 import math
 import re
 
-comparisonOperators = ["<", ">", "<=", ">=", "==", "!="]
-
-
 # Returns true if the specified string is a number, returns false otherwise
 def is_number(string: str) -> bool:
     if string in ["inf", "-inf"]:
