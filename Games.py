@@ -1,7 +1,7 @@
 import random
 
 import Utils
-
+# Speedrun getting cancer
 
 # Guess the number
 def guess_number() -> None:
