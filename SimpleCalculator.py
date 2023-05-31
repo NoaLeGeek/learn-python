@@ -33,6 +33,9 @@ class SimpleCalculator:
                 # Button is the backspace button
                 elif index == 3:
                     button.configure(command=self.backspace)
+                # Button is the x² button
+                elif index == 5:
+                    button.configure(command=self.squared)
                 # Button is the % button
                 elif index == 0:
                     button.configure(command=self.out_of_hundred)
@@ -42,14 +45,15 @@ class SimpleCalculator:
                 button.grid(row=row + 1, column=col, padx=1, pady=1)
 
     def eval(self):
+        entry = self.entry.get().replace("²", "**2")
         # Evaluate the string for the result
-        result = eval(self.entry.get())
+        result = eval(entry)
         # Empty the entry and insert the result
         self.entry.delete(0, tk.END)
         self.entry.insert(0, str(result))
 
     def backspace(self):
-        # Delete the last char
+        # Delete the last character
         self.entry.delete(len(self.entry.get()) - 1)
 
     def insert(self, text):
@@ -65,10 +69,19 @@ class SimpleCalculator:
     def run(self):
         self.window.mainloop()
 
+    def get_numbers(self):
+        return re.findall(r"(-?\d+(?:\.\d+)?)", self.entry.get())
+
+    def squared(self):
+        numbers = self.get_numbers()
+        if self.entry.get()[-1] in MathsUtils.operators:
+            self.insert(numbers[-1])
+        self.insert("²")
+
+
     def out_of_hundred(self):
         # Get all numbers in the string
-        numbers = re.findall(r"(-?\d+(?:\.\d+)?)", self.entry.get())
-        print(numbers)
+        numbers = self.get_numbers()
         # Last character is * or /
         if self.entry.get()[-1] in MathsUtils.operators[2:4]:
             self.insert(float(numbers[-1])/100)
