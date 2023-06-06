@@ -1,4 +1,4 @@
-import math
+from math import *
 
 import customtkinter as ctk
 import tkinter as tk
@@ -36,6 +36,9 @@ class SimpleCalculator:
                 # Button is the x² button
                 elif index == 5:
                     button.configure(command=self.squared)
+                # Button is the ²√x
+                elif index == 6:
+                    button.configure(command=self.squared_root)
                 # Button is the % button
                 elif index == 0:
                     button.configure(command=self.out_of_hundred)
@@ -45,12 +48,19 @@ class SimpleCalculator:
                 button.grid(row=row + 1, column=col, padx=1, pady=1)
 
     def eval(self):
-        entry = self.entry.get().replace("²", "**2")
+        entry = self.entry.get()
+        if "²" in entry:
+            entry.replace("²", "**2")
+        if "√" in entry:
+            print(entry)
+            matches = re.finditer(r'√+-?\d+(\.\d+)?', entry)
+            for matchNum, match in enumerate(matches, start=1):
+                entry = entry.replace(match.group(), f"{match.group().replace('√', '')}**{1 / (2 ** match.group().count('√'))}")
         # Evaluate the string for the result
         result = eval(entry)
         # Empty the entry and insert the result
         self.entry.delete(0, tk.END)
-        self.entry.insert(0, str(result))
+        self.entry.insert(0, str(int(result)) if re.match(r"^-?\d+\.0*$", str(result)) else str(result))
 
     def backspace(self):
         # Delete the last character
@@ -66,6 +76,9 @@ class SimpleCalculator:
                 self.backspace()
             self.entry.insert(tk.END, text)
 
+    def insert_behind(self, text: str, behind: str):
+        self.entry.insert(len(self.entry.get()) - len(behind), text)
+
     def run(self):
         self.window.mainloop()
 
@@ -78,13 +91,18 @@ class SimpleCalculator:
             self.insert(numbers[-1])
         self.insert("²")
 
+    def squared_root(self):
+        numbers = self.get_numbers()
+        if self.entry.get()[-1] in MathsUtils.operators:
+            self.insert(float(numbers[-1]))
+        self.insert_behind("√", numbers[-1])
 
     def out_of_hundred(self):
         # Get all numbers in the string
         numbers = self.get_numbers()
         # Last character is * or /
         if self.entry.get()[-1] in MathsUtils.operators[2:4]:
-            self.insert(float(numbers[-1])/100)
+            self.insert(float(numbers[-1]) / 100)
         # Last character is + or -
         elif self.entry.get()[-1] in MathsUtils.operators[0:2]:
             self.insert((float(numbers[-1]) / 100) * float(numbers[-1]))
