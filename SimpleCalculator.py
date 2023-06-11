@@ -36,9 +36,12 @@ class SimpleCalculator:
                 # Button is the x² button
                 elif index == 5:
                     button.configure(command=self.squared)
-                # Button is the ²√x
+                # Button is the ²√x button
                 elif index == 6:
                     button.configure(command=self.squared_root)
+                # Button is the 1/x button
+                elif index == 4:
+                    button.configure(command=self.reciprocal)
                 # Button is the % button
                 elif index == 0:
                     button.configure(command=self.out_of_hundred)
@@ -66,13 +69,16 @@ class SimpleCalculator:
         # Delete the last character
         self.entry.delete(len(self.entry.get()) - 1)
 
+    def delete_last_number(self):
+        self.entry.delete(len(self.entry.get()) - len(self.get_numbers()[-1]), tk.END)
+
     def insert(self, text):
         # text is a number
         if type(text) == float:
             self.entry.insert(tk.END, str(int(text)) if re.match(r"^-?\d+\.0*$", str(text)) else str(text))
         # text is a string
         else:
-            if len(self.entry.get()) != 0 and self.entry.get()[-1] in MathsUtils.operators:
+            if len(self.entry.get()) != 0 and not text.startswith("(") and self.entry.get()[-1] in MathsUtils.operators:
                 self.backspace()
             self.entry.insert(tk.END, text)
 
@@ -83,13 +89,23 @@ class SimpleCalculator:
         self.window.mainloop()
 
     def get_numbers(self):
-        return re.findall(r"(-?\d+(?:\.\d+)?)", self.entry.get())
+        # numbers = re.finditer(r"\(1\/\d+\)|-?\d+(\.\d+)?", self.entry.get())
+        # for matchNum, number in enumerate(numbers, start=1):
+        #     # cast all number to string
+        # return numbers
+        return [number.group() for number in re.finditer(r"(\(1\/)+-?(\.\d+)?\d+\)+|-?\d+(\.\d+)?", self.entry.get())]
 
     def squared(self):
         numbers = self.get_numbers()
         if self.entry.get()[-1] in MathsUtils.operators:
             self.insert(numbers[-1])
         self.insert("²")
+
+    def reciprocal(self):
+        numbers = self.get_numbers()
+        if not self.entry.get()[-1] in MathsUtils.operators:
+            self.delete_last_number()
+        self.insert(f"(1/{numbers[-1]})")
 
     def squared_root(self):
         numbers = self.get_numbers()
@@ -108,7 +124,7 @@ class SimpleCalculator:
             self.insert((float(numbers[-1]) / 100) * float(numbers[-1]))
         # Last character is a number
         else:
-            self.entry.delete(len(self.entry.get()) - len(numbers[-1]), tk.END)
+            self.delete_last_number()
             if len(self.entry.get()) != 0 and self.entry.get()[-1] in MathsUtils.operators[2:4]:
                 self.insert(float(numbers[1]) / 100)
             else:
