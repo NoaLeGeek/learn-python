@@ -6,6 +6,8 @@ import tkinter as tk
 import MathsUtils
 import re
 
+import Utils
+
 
 class SimpleCalculator:
     def __init__(self):
@@ -42,6 +44,9 @@ class SimpleCalculator:
                 # Button is the 1/x button
                 elif index == 4:
                     button.configure(command=self.reciprocal)
+                # Button is the ± button
+                elif index == 20:
+                    button.configure(command=self.opposite)
                 # Button is the % button
                 elif index == 0:
                     button.configure(command=self.out_of_hundred)
@@ -75,11 +80,11 @@ class SimpleCalculator:
     def insert(self, text):
         # text is a number
         if type(text) == float:
-            self.entry.insert(tk.END, str(int(text)) if re.match(r"^-?\d+\.0*$", str(text)) else str(text))
+            self.entry.insert(tk.END, MathsUtils.formatted_number(str(text)))
         # text is a string
         else:
-            if len(self.entry.get()) != 0 and not text.startswith("(") and self.entry.get()[-1] in MathsUtils.operators:
-                self.backspace()
+            # if len(self.entry.get()) != 0 and not text.startswith("(") and self.entry.get()[-1] in MathsUtils.operators:
+            #     self.backspace()
             self.entry.insert(tk.END, text)
 
     def insert_behind(self, text: str, behind: str):
@@ -106,6 +111,12 @@ class SimpleCalculator:
         if not self.entry.get()[-1] in MathsUtils.operators:
             self.delete_last_number()
         self.insert(f"(1/{numbers[-1]})")
+
+    def opposite(self):
+        numbers = self.get_numbers()
+        if not self.entry.get()[-1] in MathsUtils.operators:
+            self.delete_last_number()
+        Utils.entry_set(self.entry, MathsUtils.formatted_expression(self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(numbers[-1])))))
 
     def squared_root(self):
         numbers = self.get_numbers()

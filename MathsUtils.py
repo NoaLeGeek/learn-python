@@ -28,6 +28,20 @@ def is_float_number(string: str) -> bool:
         return False
 
 
+# Returns a formatted string for numbers that ends in .000... which is removed
+def formatted_number(string: str) -> str:
+    return re.sub(r"\.0+$", "", string, 0)
+
+
+# Returns a formatted mathematical expression that contains "+-" or "--" which are simplified to "-" and "+", if the string begins with a "+", it will be removed
+def formatted_expression(string: str) -> str:
+    if string.startswith("+"):
+        return formatted_expression(string[1:])
+    if "+-" in string or "--" in string or "*+" in string or "/+" in string:
+        return formatted_expression(string.replace("+-", "-").replace("--", "+").replace("*+", "*").replace("/+", "/"))
+    return string
+
+
 # Returns true if the specified expression is an inequality with an absolute value, returns false otherwise
 def is_inequality_with_absolute(expression: str) -> bool:
     return re.match(r"^\|[a-zA-Z](-|\+)(-?\d+(.\d+)?)\| ((<|>)=?|!=|=) (\d+(.\d+)?)$", expression) is not None
@@ -113,17 +127,17 @@ def translations_expression(expression: str) -> list[str]:
                 else:
                     translation = translation.format(*(
                         ("]", "-∞", args[0 if is_number(args[0]) else 2], ("]" if "=" in args[1] else "[")) if (
-                                                                                                                           is_number(
-                                                                                                                               args[
-                                                                                                                                   0]) and ">" in
+                                                                                                                       is_number(
                                                                                                                            args[
-                                                                                                                               1]) or (
-                                                                                                                           not is_number(
-                                                                                                                               args[
-                                                                                                                                   0]) and "<" in
+                                                                                                                               0]) and ">" in
+                                                                                                                       args[
+                                                                                                                           1]) or (
+                                                                                                                       not is_number(
                                                                                                                            args[
-                                                                                                                               1]) else (
-                        ("[" if "=" in args[1] else "]"), args[0 if is_number(args[0]) else 2], "+∞", "[")))
+                                                                                                                               0]) and "<" in
+                                                                                                                       args[
+                                                                                                                           1]) else (
+                            ("[" if "=" in args[1] else "]"), args[0 if is_number(args[0]) else 2], "+∞", "[")))
             case 5:
                 translation = translation.format(("[" if "=" in args[1] else "]"),
                                                  (args[0] if "<" in args[1] else args[4]),
@@ -140,7 +154,6 @@ def translations_expression(expression: str) -> list[str]:
                                                  "+∞", "[")
         lizt.append(translation)
         # Inequality with absolute value translation
-        translation = ""
         if len(args) != 3 and (args[1] == args[3] or not (("=" in args[1]) ^ ("=" in args[5]))):
             lizt.append("|{}{}| {}{} {}".format(letter, re.sub(r"(\.0)$", "", "{:+}".format(
                 -((float(list(filter(is_number, args))[0]) + float(list(filter(is_number, args))[1])) / 2))),
