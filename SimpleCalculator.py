@@ -58,9 +58,8 @@ class SimpleCalculator:
     def eval(self):
         entry = self.entry.get()
         if "²" in entry:
-            entry.replace("²", "**2")
+            entry = entry.replace("²", "**2")
         if "√" in entry:
-            print(entry)
             matches = re.finditer(r'√+-?\d+(\.\d+)?', entry)
             for matchNum, match in enumerate(matches, start=1):
                 entry = entry.replace(match.group(), f"{match.group().replace('√', '')}**{1 / (2 ** match.group().count('√'))}")
