@@ -24,39 +24,41 @@ class SimpleCalculator:
                                              "4", "5", "6", "-",
                                              "1", "2", "3", "+",
                                              "±", "0", ",", "="][index])
-                # Button is a number to insert
-                if index in [8, 9, 10, 12, 13, 14, 16, 17, 18, 21]:
-                    button.configure(
-                        command=lambda num=index - (-row * row * row + 9 * row * row + 16 * row - 54) / 6: self.insert(
-                            num))
-                # Button is an operator to insert
-                elif index in [7, 11, 15, 19]:
-                    button.configure(command=lambda char=button.cget("text"): self.insert(char))
-                # Button is the backspace button
-                elif index == 3:
-                    button.configure(command=self.backspace)
-                # Button is the x² button
-                elif index == 5:
-                    button.configure(command=self.squared)
-                # Button is the ²√x button
-                elif index == 6:
-                    button.configure(command=self.squared_root)
-                # Button is the 1/x button
-                elif index == 4:
-                    button.configure(command=self.reciprocal)
-                # Button is the ± button
-                elif index == 20:
-                    button.configure(command=self.opposite)
-                # Button is the % button
-                elif index == 0:
-                    button.configure(command=self.out_of_hundred)
-                # Button is the evaluate button
-                elif index == 23:
-                    button.configure(command=self.eval)
+                match index:
+                    # Button is the backspace button
+                    case 3:
+                        button.configure(command=self.backspace)
+                    # Button is the x² button
+                    case 5:
+                        button.configure(command=self.squared)
+                    # Button is the ²√x button
+                    case 6:
+                        button.configure(command=self.squared_root)
+                    # Button is the 1/x button
+                    case 4:
+                        button.configure(command=self.reciprocal)
+                    # Button is the ± button
+                    case 20:
+                        button.configure(command=self.opposite)
+                    # Button is the % button
+                    case 0:
+                        button.configure(command=self.out_of_hundred)
+                    # Button is the evaluate button
+                    case 23:
+                        button.configure(command=self.eval)
+                    case _:
+                        # Button is a number to insert
+                        if index in [8, 9, 10, 12, 13, 14, 16, 17, 18, 21]:
+                            button.configure(command=lambda num=index - (-row * row * row + 9 * row * row + 16 * row - 54) / 6: self.insert(num))
+                        # Button is an operator to insert
+                        elif index in [7, 11, 15, 19, 22]:
+                            button.configure(command=lambda char=button.cget("text"): self.insert(char))
                 button.grid(row=row + 1, column=col, padx=1, pady=1)
 
     def eval(self):
         entry = self.entry.get()
+        if "," in entry:
+            entry = entry.replace(",", ".")
         if "²" in entry:
             entry = entry.replace("²", "**2")
         if "√" in entry:
@@ -66,25 +68,20 @@ class SimpleCalculator:
         # Evaluate the string for the result
         result = eval(entry)
         # Empty the entry and insert the result
-        self.entry.delete(0, tk.END)
+        Utils.delete_entry(self.entry)
         self.entry.insert(0, str(int(result)) if re.match(r"^-?\d+\.0*$", str(result)) else str(result))
 
+    # Delete the last character
     def backspace(self):
-        # Delete the last character
         self.entry.delete(len(self.entry.get()) - 1)
 
+    # Delete the last recognized number in the entry
     def delete_last_number(self):
         self.entry.delete(len(self.entry.get()) - len(self.get_numbers()[-1]), tk.END)
 
+    # Insert the text at the end of the entry, format the text if it's a number
     def insert(self, text):
-        # text is a number
-        if type(text) == float:
-            self.entry.insert(tk.END, MathsUtils.formatted_number(str(text)))
-        # text is a string
-        else:
-            # if len(self.entry.get()) != 0 and not text.startswith("(") and self.entry.get()[-1] in MathsUtils.operators:
-            #     self.backspace()
-            self.entry.insert(tk.END, text)
+        self.entry.insert(tk.END, MathsUtils.formatted_number(str(text)) if type(text) == float else text)
 
     def insert_behind(self, text: str, behind: str):
         self.entry.insert(len(self.entry.get()) - len(behind), text)
@@ -92,11 +89,8 @@ class SimpleCalculator:
     def run(self):
         self.window.mainloop()
 
-    def get_numbers(self):
-        # numbers = re.finditer(r"\(1\/\d+\)|-?\d+(\.\d+)?", self.entry.get())
-        # for matchNum, number in enumerate(numbers, start=1):
-        #     # cast all number to string
-        # return numbers
+    # Return a list of string that are numbers in the entry
+    def get_numbers(self) -> list[str]:
         return [number.group() for number in re.finditer(r"(\(1\/)+-?(\.\d+)?\d+\)+|-?\d+(\.\d+)?", self.entry.get())]
 
     def squared(self):

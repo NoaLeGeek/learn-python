@@ -1,10 +1,6 @@
 # Returns the last element of a list
-import tkinter
+import tkinter as tk
 from tkinter import Entry
-
-
-def last_element(lizt: list) -> object:
-    return lizt[len(lizt) - 1]
 
 
 def generate_choices(choices: dict) -> str:
@@ -14,8 +10,14 @@ def generate_choices(choices: dict) -> str:
     return string
 
 
+# Set a new value for the entry
 def entry_set(entry: Entry, string: str) -> None:
-    entry.delete(0, tkinter.END)
+    delete_entry(entry)
     entry.insert(0, string)
+
+
+# Delete the whole entry
+def delete_entry(entry: Entry) -> None:
+    entry.delete(0, tk.END)
 
 
