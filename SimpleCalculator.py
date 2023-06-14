@@ -30,7 +30,7 @@ class SimpleCalculator:
                 match index:
                     # Button is the CE button
                     case 1:
-                        button.configure(command=lambda text=self.last_added: Utils.set_entry(self.entry, text))
+                        button.configure(command=lambda _=0: Utils.set_entry(self.entry, self.last_added))
                     # Button is the C button
                     case 2:
                         button.configure(command=Utils.delete_entry)
