@@ -10,6 +10,9 @@ import Utils
 
 
 class SimpleCalculator:
+
+    last_added = ""
+
     def __init__(self):
         self.window = tk.Tk()
         self.entry = tk.Entry(self.window, width=80)
@@ -25,6 +28,12 @@ class SimpleCalculator:
                                              "1", "2", "3", "+",
                                              "±", "0", ",", "="][index])
                 match index:
+                    # Button is the CE button
+                    case 1:
+                        button.configure(command=lambda text=self.last_added: Utils.set_entry(self.entry, text))
+                    # Button is the C button
+                    case 2:
+                        button.configure(command=Utils.delete_entry)
                     # Button is the backspace button
                     case 3:
                         button.configure(command=self.backspace)
@@ -56,6 +65,7 @@ class SimpleCalculator:
                 button.grid(row=row + 1, column=col, padx=1, pady=1)
 
     def eval(self):
+        SimpleCalculator.last_added = self.entry.get()
         entry = self.entry.get()
         if "," in entry:
             entry = entry.replace(",", ".")
@@ -68,11 +78,11 @@ class SimpleCalculator:
         # Evaluate the string for the result
         result = eval(entry)
         # Empty the entry and insert the result
-        Utils.delete_entry(self.entry)
-        self.entry.insert(0, str(int(result)) if re.match(r"^-?\d+\.0*$", str(result)) else str(result))
+        Utils.set_entry(self.entry, str(int(result)) if re.match(r"^-?\d+\.0*$", str(result)) else str(result))
 
     # Delete the last character
     def backspace(self):
+        SimpleCalculator.last_added = self.entry.get()
         self.entry.delete(len(self.entry.get()) - 1)
 
     # Delete the last recognized number in the entry
@@ -81,6 +91,7 @@ class SimpleCalculator:
 
     # Insert the text at the end of the entry, format the text if it's a number
     def insert(self, text):
+        SimpleCalculator.last_added = self.entry.get()
         self.entry.insert(tk.END, MathsUtils.formatted_number(str(text)) if type(text) == float else text)
 
     def insert_behind(self, text: str, behind: str):
@@ -94,30 +105,35 @@ class SimpleCalculator:
         return [number.group() for number in re.finditer(r"(\(1\/)+-?(\.\d+)?\d+\)+|-?\d+(\.\d+)?", self.entry.get())]
 
     def squared(self):
+        SimpleCalculator.last_added = self.entry.get()
         numbers = self.get_numbers()
         if self.entry.get()[-1] in MathsUtils.operators:
             self.insert(numbers[-1])
         self.insert("²")
 
     def reciprocal(self):
+        SimpleCalculator.last_added = self.entry.get()
         numbers = self.get_numbers()
         if not self.entry.get()[-1] in MathsUtils.operators:
             self.delete_last_number()
         self.insert(f"(1/{numbers[-1]})")
 
     def opposite(self):
+        SimpleCalculator.last_added = self.entry.get()
         numbers = self.get_numbers()
         if not self.entry.get()[-1] in MathsUtils.operators:
             self.delete_last_number()
-        Utils.entry_set(self.entry, MathsUtils.formatted_expression(self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(numbers[-1])))))
+        Utils.set_entry(self.entry, MathsUtils.formatted_expression(self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(numbers[-1])))))
 
     def squared_root(self):
+        SimpleCalculator.last_added = self.entry.get()
         numbers = self.get_numbers()
         if self.entry.get()[-1] in MathsUtils.operators:
             self.insert(float(numbers[-1]))
         self.insert_behind("√", numbers[-1])
 
     def out_of_hundred(self):
+        SimpleCalculator.last_added = self.entry.get()
         # Get all numbers in the string
         numbers = self.get_numbers()
         # Last character is * or /

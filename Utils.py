@@ -11,7 +11,8 @@ def generate_choices(choices: dict) -> str:
 
 
 # Set a new value for the entry
-def entry_set(entry: Entry, string: str) -> None:
+def set_entry(entry: Entry, string: str) -> None:
+    print("last added:\n" + string)
     delete_entry(entry)
     entry.insert(0, string)
 
