@@ -1,17 +1,16 @@
-from math import *
-
+#!/usr/bin/env python3
 import customtkinter as ctk
 import tkinter as tk
 
-import MathsUtils
 import re
 
+import MathsUtils
 import Utils
-
 
 class SimpleCalculator:
 
-    last_added = ""
+    # This variable is filled with the contents of the calculator as the user presses its buttons.
+    last_added = []
 
     def __init__(self):
         self.window = tk.Tk()
@@ -30,10 +29,10 @@ class SimpleCalculator:
                 match index:
                     # Button is the CE button
                     case 1:
-                        button.configure(command=lambda _=0: Utils.set_entry(self.entry, self.last_added))
+                        button.configure(command=self.clear_entry)
                     # Button is the C button
                     case 2:
-                        button.configure(command=Utils.delete_entry)
+                        button.configure(command=lambda: Utils.delete_entry(self.entry))
                     # Button is the backspace button
                     case 3:
                         button.configure(command=self.backspace)
@@ -65,7 +64,7 @@ class SimpleCalculator:
                 button.grid(row=row + 1, column=col, padx=1, pady=1)
 
     def eval(self):
-        SimpleCalculator.last_added = self.entry.get()
+        self.last_added.append(self.entry.get())
         entry = self.entry.get()
         if "," in entry:
             entry = entry.replace(",", ".")
@@ -73,7 +72,7 @@ class SimpleCalculator:
             entry = entry.replace("²", "**2")
         if "√" in entry:
             matches = re.finditer(r'√+-?\d+(\.\d+)?', entry)
-            for matchNum, match in enumerate(matches, start=1):
+            for _, match in enumerate(matches, start=1):
                 entry = entry.replace(match.group(), f"{match.group().replace('√', '')}**{1 / (2 ** match.group().count('√'))}")
         # Evaluate the string for the result
         result = eval(entry)
@@ -82,17 +81,22 @@ class SimpleCalculator:
 
     # Delete the last character
     def backspace(self):
-        SimpleCalculator.last_added = self.entry.get()
+        self.last_added.append(self.entry.get())
         self.entry.delete(len(self.entry.get()) - 1)
+
+    # Restore the contents of the calculator before the last modification
+    def clear_entry(self):
+        Utils.set_entry(self.entry, self.last_added[-1])
+        self.last_added = self.last_added[:-1]
 
     # Delete the last recognized number in the entry
     def delete_last_number(self):
         self.entry.delete(len(self.entry.get()) - len(self.get_numbers()[-1]), tk.END)
 
-    # Insert the text at the end of the entry, format the text if it's a number
+    # Insert the char or the number
     def insert(self, text):
-        SimpleCalculator.last_added = self.entry.get()
-        self.entry.insert(tk.END, MathsUtils.formatted_number(str(text)) if type(text) == float else text)
+        self.last_added.append(self.entry.get())
+        Utils.set_entry(self.entry, (self.entry.get()[:-1] if len(self.entry.get()) != 0 and not MathsUtils.is_number(text) and self.entry.get()[-1] in MathsUtils.operators else self.entry.get()) + MathsUtils.formatted_number(str(text)))
 
     def insert_behind(self, text: str, behind: str):
         self.entry.insert(len(self.entry.get()) - len(behind), text)
@@ -105,52 +109,49 @@ class SimpleCalculator:
         return [number.group() for number in re.finditer(r"(\(1\/)+-?(\.\d+)?\d+\)+|-?\d+(\.\d+)?", self.entry.get())]
 
     def squared(self):
-        SimpleCalculator.last_added = self.entry.get()
-        numbers = self.get_numbers()
-        if self.entry.get()[-1] in MathsUtils.operators:
-            self.insert(numbers[-1])
-        self.insert("²")
+        self.last_added.append(self.entry.get())
+        Utils.insert_entry(self.entry, (self.get_numbers()[-1] if self.entry.get()[-1] in MathsUtils.operators else "") + "²")
 
     def reciprocal(self):
-        SimpleCalculator.last_added = self.entry.get()
+        self.last_added.append(self.entry.get())
         numbers = self.get_numbers()
+        print(numbers)
         if not self.entry.get()[-1] in MathsUtils.operators:
             self.delete_last_number()
-        self.insert(f"(1/{numbers[-1]})")
+        Utils.insert_entry(self.entry, f"(1/{numbers[-1]})")
 
     def opposite(self):
-        SimpleCalculator.last_added = self.entry.get()
-        numbers = self.get_numbers()
+        self.last_added.append(self.entry.get())
         if not self.entry.get()[-1] in MathsUtils.operators:
             self.delete_last_number()
-        Utils.set_entry(self.entry, MathsUtils.formatted_expression(self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(numbers[-1])))))
+        Utils.set_entry(self.entry, MathsUtils.formatted_expression(self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(self.get_numbers()[-1])))))
 
     def squared_root(self):
-        SimpleCalculator.last_added = self.entry.get()
+        self.last_added.append(self.entry.get())
         numbers = self.get_numbers()
         if self.entry.get()[-1] in MathsUtils.operators:
-            self.insert(float(numbers[-1]))
+            Utils.insert_entry(self.entry, numbers[-1])
         self.insert_behind("√", numbers[-1])
 
     def out_of_hundred(self):
-        SimpleCalculator.last_added = self.entry.get()
+        self.last_added.append(self.entry.get())
         # Get all numbers in the string
         numbers = self.get_numbers()
         # Last character is * or /
         if self.entry.get()[-1] in MathsUtils.operators[2:4]:
-            self.insert(float(numbers[-1]) / 100)
+            Utils.insert_entry(self.entry, str(float(numbers[-1]) / 100))
         # Last character is + or -
         elif self.entry.get()[-1] in MathsUtils.operators[0:2]:
-            self.insert((float(numbers[-1]) / 100) * float(numbers[-1]))
+            Utils.insert_entry(self.entry, (float(numbers[-1]) / 100) * float(numbers[-1]))
         # Last character is a number
         else:
             self.delete_last_number()
             if len(self.entry.get()) != 0 and self.entry.get()[-1] in MathsUtils.operators[2:4]:
-                self.insert(float(numbers[1]) / 100)
+                Utils.insert_entry(self.entry, str(float(numbers[1]) / 100))
             else:
                 number = (float(numbers[-2]) if len(numbers) > 1 else 0) * (float(numbers[-1]) / 100)
-                self.insert("+" if number > 0 else "")
-                self.insert(number)
+                Utils.insert_entry(self.entry, "+" if number > 0 else "")
+                Utils.insert_entry(self.entry, number)
 
 
 if __name__ == '__main__':
