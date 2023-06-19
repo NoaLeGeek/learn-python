@@ -106,7 +106,7 @@ class SimpleCalculator:
 
     # Return a list of string that are numbers in the entry
     def get_numbers(self) -> list[str]:
-        return [number.group() for number in re.finditer(r"(\(1\/)+-?(\.\d+)?\d+\)+|-?\d+(\.\d+)?", self.entry.get())]
+        return [number.group() for number in re.finditer(r"(\(1\/)+-?\d+(\.\d+)?\)+|-?\d+(\.\d+)?", self.entry.get())]
 
     def squared(self):
         self.last_added.append(self.entry.get())
