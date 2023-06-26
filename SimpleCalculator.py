@@ -137,21 +137,23 @@ class SimpleCalculator:
         self.last_added.append(self.entry.get())
         # Get all numbers in the string
         numbers = self.get_numbers()
-        # Last character is * or /
-        if self.entry.get()[-1] in MathsUtils.operators[2:4]:
-            Utils.insert_entry(self.entry, str(float(numbers[-1]) / 100))
-        # Last character is + or -
-        elif self.entry.get()[-1] in MathsUtils.operators[0:2]:
-            Utils.insert_entry(self.entry, (float(numbers[-1]) / 100) * float(numbers[-1]))
+        # Last character is an operator
+        if self.entry.get()[-1] in MathsUtils.operators:
+            Utils.insert_entry(self.entry, str(float(numbers[-1]) / 100 * (float(numbers[-1]) if self.entry.get()[-1] in MathsUtils.operators[0:2] else 1)))
         # Last character is a number
         else:
             self.delete_last_number()
             if len(self.entry.get()) != 0 and self.entry.get()[-1] in MathsUtils.operators[2:4]:
                 Utils.insert_entry(self.entry, str(float(numbers[1]) / 100))
             else:
-                number = (float(numbers[-2]) if len(numbers) > 1 else 0) * (float(numbers[-1]) / 100)
-                Utils.insert_entry(self.entry, "+" if number > 0 else "")
-                Utils.insert_entry(self.entry, number)
+                number = (float(numbers[-2]) * float(numbers[-1]) / 100) if len(numbers) > 1 else 0
+                if len(numbers) > 1 and float(numbers[-2]) < 0:
+                    if number < 0:
+                        Utils.set_entry(self.entry, self.entry.get()[:-1] + MathsUtils.formatted_number(str(number)))
+                    else:
+                        Utils.insert_entry(self.entry, f"{number:+}")
+                else:
+                    Utils.insert_entry(self.entry, str(number))
 
 
 if __name__ == '__main__':
