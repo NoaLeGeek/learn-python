@@ -7,8 +7,8 @@ import re
 import MathsUtils
 import Utils
 
-class SimpleCalculator:
 
+class SimpleCalculator:
     # This variable is filled with the contents of the calculator as the user presses its buttons.
     last_added = []
 
@@ -57,12 +57,16 @@ class SimpleCalculator:
                     case _:
                         # Button is a number to insert
                         if index in [8, 9, 10, 12, 13, 14, 16, 17, 18, 21]:
-                            button.configure(command=lambda num=index - (-row * row * row + 9 * row * row + 16 * row - 54) / 6: self.insert(num))
+                            button.configure(command=lambda
+                                # This function seems weird but it's actually a Lagrange interpolation
+                                num=index - (-row * row * row + 9 * row * row + 16 * row - 54) / 6: self.insert(num))
                         # Button is an operator to insert
                         elif index in [7, 11, 15, 19, 22]:
                             button.configure(command=lambda char=button.cget("text"): self.insert(char))
+                # Place the button
                 button.grid(row=row + 1, column=col, padx=1, pady=1)
 
+    # Evaluate the contents of the calculator
     def eval(self):
         self.last_added.append(self.entry.get())
         entry = self.entry.get()
@@ -73,7 +77,8 @@ class SimpleCalculator:
         if "√" in entry:
             matches = re.finditer(r'√+-?\d+(\.\d+)?', entry)
             for _, match in enumerate(matches, start=1):
-                entry = entry.replace(match.group(), f"{match.group().replace('√', '')}**{1 / (2 ** match.group().count('√'))}")
+                entry = entry.replace(match.group(),
+                                      f"{match.group().replace('√', '')}**{1 / (2 ** match.group().count('√'))}")
         # Evaluate the string for the result
         result = eval(entry)
         # Empty the entry and insert the result
@@ -96,10 +101,9 @@ class SimpleCalculator:
     # Insert the char or the number
     def insert(self, text):
         self.last_added.append(self.entry.get())
-        Utils.set_entry(self.entry, (self.entry.get()[:-1] if len(self.entry.get()) != 0 and not MathsUtils.is_number(text) and self.entry.get()[-1] in MathsUtils.operators else self.entry.get()) + MathsUtils.formatted_number(str(text)))
-
-    def insert_behind(self, text: str, behind: str):
-        self.entry.insert(len(self.entry.get()) - len(behind), text)
+        Utils.set_entry(self.entry, (
+            self.entry.get()[:-1] if len(self.entry.get()) != 0 and not MathsUtils.is_number(text) and self.entry.get()[
+                -1] in MathsUtils.operators else self.entry.get()) + MathsUtils.formatted_number(str(text)))
 
     def run(self):
         self.window.mainloop()
@@ -108,10 +112,13 @@ class SimpleCalculator:
     def get_numbers(self) -> list[str]:
         return [number.group() for number in re.finditer(r"(\(1\/)+-?\d+(\.\d+)?\)+|-?\d+(\.\d+)?", self.entry.get())]
 
+    # Used by the x² button
     def squared(self):
         self.last_added.append(self.entry.get())
-        Utils.insert_entry(self.entry, (self.get_numbers()[-1] if self.entry.get()[-1] in MathsUtils.operators else "") + "²")
+        Utils.insert_entry(self.entry,
+                           (self.get_numbers()[-1] if self.entry.get()[-1] in MathsUtils.operators else "") + "²")
 
+    # Used by the 1/x button
     def reciprocal(self):
         self.last_added.append(self.entry.get())
         numbers = self.get_numbers()
@@ -120,26 +127,31 @@ class SimpleCalculator:
             self.delete_last_number()
         Utils.insert_entry(self.entry, f"(1/{numbers[-1]})")
 
+    # Used by the ± button
     def opposite(self):
         self.last_added.append(self.entry.get())
         if not self.entry.get()[-1] in MathsUtils.operators:
             self.delete_last_number()
-        Utils.set_entry(self.entry, MathsUtils.formatted_expression(self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(self.get_numbers()[-1])))))
+        Utils.set_entry(self.entry, MathsUtils.formatted_expression(
+            self.entry.get() + MathsUtils.formatted_number("{:+}".format(-float(self.get_numbers()[-1])))))
 
+    # Used by the ²√x button
     def squared_root(self):
         self.last_added.append(self.entry.get())
         numbers = self.get_numbers()
         if self.entry.get()[-1] in MathsUtils.operators:
             Utils.insert_entry(self.entry, numbers[-1])
-        self.insert_behind("√", numbers[-1])
+        self.entry.insert(len(self.entry.get()) - len(numbers[-1]), "√")
 
+    # Used by the % button
     def out_of_hundred(self):
         self.last_added.append(self.entry.get())
         # Get all numbers in the string
         numbers = self.get_numbers()
         # Last character is an operator
         if self.entry.get()[-1] in MathsUtils.operators:
-            Utils.insert_entry(self.entry, str(float(numbers[-1]) / 100 * (float(numbers[-1]) if self.entry.get()[-1] in MathsUtils.operators[0:2] else 1)))
+            Utils.insert_entry(self.entry, str(float(numbers[-1]) / 100 * (
+                float(numbers[-1]) if self.entry.get()[-1] in MathsUtils.operators[0:2] else 1)))
         # Last character is a number
         else:
             self.delete_last_number()
