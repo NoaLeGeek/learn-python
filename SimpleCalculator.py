@@ -26,7 +26,7 @@ class SimpleCalculator:
             if x != 0:
                 self.buttons_frame.columnconfigure(x, weight=1)
         self.label = tk.Label(self.display_frame, text=self.expression, anchor=tk.E, bg="#F5F5F5", fg="#25265E",
-                              padx=24, font=("Arial", 40, "bold"))
+                              padx=24, font=("Arial", 20, "bold"))
         self.label.pack(expand=True, fill="both")
         # The buttons are placed on the first row (row 0) and the second column (column 1) of the grid
         button_information = {
@@ -92,7 +92,7 @@ class SimpleCalculator:
         self.update_label()
 
     def update_label(self):
-        self.label.config(text=self.expression[:11])
+        self.label.config(text=self.expression[:22])
 
     # Restore the contents of the calculator before the last modification
     def clear_entry(self):
