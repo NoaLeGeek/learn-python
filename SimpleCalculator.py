@@ -29,7 +29,7 @@ class SimpleCalculator:
                               padx=24, font=("Arial", 40, "bold"))
         self.label.pack(expand=True, fill="both")
         # The buttons are placed on the first row (row 0) and the second column (column 1) of the grid
-        button_informations = {
+        button_information = {
             "%": (0, 1, self.out_of_hundred), "CE": (0, 2, self.clear_entry), "C": (0, 3, self.clear), "\u232B": (0, 4, self.backspace),
             "1/x": (1, 1, self.reciprocal), "x²": (1, 2, self.squared), "²√x": (1, 3, self.squared_root), "\u00F7": (1, 4),
             "7": (2, 1), "8": (2, 2), "9": (2, 3), "\u00D7": (2, 4),
@@ -37,7 +37,7 @@ class SimpleCalculator:
             "1": (4, 1), "2": (4, 2), "3": (4, 3), "+": (4, 4),
             "±": (5, 1, self.opposite), "0": (5, 2), ",": (5, 3), "=": (5, 4)
         }
-        for value, information in button_informations.items():
+        for value, information in button_information.items():
             # information[0] is the button's position's row
             # information[1] is the button's position's column
             # information[2] is the button's command, if information[2] doesn't exist, the button's command will be set in this loop
@@ -76,25 +76,28 @@ class SimpleCalculator:
             result = eval(self.expression)
             self.expression = str(int(result)) if re.match(r"^-?\d+\.0*$", str(result)) else str(result)
         except Exception as e:
-            self.expression = "Division by zero" if isinstance(e, ZeroDivisionError) else "Error"
+            self.expression = "Division by zero" if isinstance(e, ZeroDivisionError) else ("Syntax error" if isinstance(e, SyntaxError) else "Error")
             print(e)
         finally:
-            self.update_label(self.expression)
+            self.update_label()
 
     def clear(self):
-        self.update_label("")
+        self.expression = ""
+        self.update_label()
 
     # Delete the last character
     def backspace(self):
         self.last_added.append(self.expression)
-        self.update_label(self.expression[:-1])
+        self.expression = self.expression[:-1]
+        self.update_label()
 
-    def update_label(self, text):
-        self.label.config(text=text[:11])
+    def update_label(self):
+        self.label.config(text=self.expression[:11])
 
     # Restore the contents of the calculator before the last modification
     def clear_entry(self):
-        self.update_label(self.last_added[-1])
+        self.expression = self.last_added[-1]
+        self.update_label()
         self.last_added = self.last_added[:-1]
 
     # Delete the last recognized number in the entry
@@ -104,7 +107,8 @@ class SimpleCalculator:
     # Insert the char or the number
     def insert(self, text):
         self.last_added.append(self.expression)
-        self.update_label((self.expression[:-1] if self.expression == "0" or (len(self.expression) != 0 and not MathsUtils.is_number(text) and self.expression[-1] in MathsUtils.operators) else self.expression) + MathsUtils.formatted_number(str(text)))
+        self.expression = (self.expression[:-1] if self.expression == "0" or (len(self.expression) != 0 and not MathsUtils.is_number(text) and self.expression[-1] in MathsUtils.operators) else self.expression) + MathsUtils.formatted_number(str(text))
+        self.update_label()
 
     def run(self):
         self.window.mainloop()
@@ -116,7 +120,8 @@ class SimpleCalculator:
     # Used by the x² button
     def squared(self):
         self.last_added.append(self.expression)
-        self.update_label(self.expression + (self.get_numbers()[-1] if self.expression[-1] in MathsUtils.operators else "") + "²")
+        self.expression += (self.get_numbers()[-1] if self.expression[-1] in MathsUtils.operators else "") + "²"
+        self.update_label()
 
     # Used by the 1/x button
     def reciprocal(self):
@@ -124,14 +129,16 @@ class SimpleCalculator:
         numbers = self.get_numbers()
         if not self.expression[-1] in MathsUtils.operators:
             self.delete_last_number()
-        self.update_label(self.expression + f"(1/{numbers[-1]})")
+        self.expression += f"(1/{numbers[-1]})"
+        self.update_label()
 
     # Used by the ± button
     def opposite(self):
         self.last_added.append(self.expression)
         if not self.expression[-1] in MathsUtils.operators:
             self.delete_last_number()
-        self.update_label(MathsUtils.formatted_expression(self.expression + MathsUtils.formatted_number("{:+}".format(-float(self.get_numbers()[-1])))))
+        self.expression = MathsUtils.formatted_expression(self.expression + MathsUtils.formatted_number("{:+}".format(-float(self.get_numbers()[-1]))))
+        self.update_label()
 
     # Used by the ²√x button
     def squared_root(self):
@@ -140,7 +147,8 @@ class SimpleCalculator:
         if self.expression[-1] in MathsUtils.operators:
             self.expression += numbers[-1]
         index = len(self.expression) - len(numbers[-1])
-        self.update_label(f"{self.expression[:index]}√{self.expression[index:]}")
+        self.expression = f"{self.expression[:index]}√{self.expression[index:]}"
+        self.update_label()
 
     # Used by the % button
     def out_of_hundred(self):
@@ -164,7 +172,7 @@ class SimpleCalculator:
                         self.expression += f"{number:+}"
                 else:
                     self.expression += str(number)
-        self.update_label(self.expression)
+        self.update_label()
 
 
 if __name__ == '__main__':
