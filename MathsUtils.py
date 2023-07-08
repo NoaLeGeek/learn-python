@@ -1,7 +1,7 @@
 import math
 import re
 
-operators = ['+', '-', '*', '/']
+operators = ['+', '-', '*', '\u00D7', '/', '\u00F7']
 
 
 # Returns true if the specified string is a number, returns false otherwise

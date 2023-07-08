@@ -173,7 +173,7 @@ class SimpleCalculator:
         # Last character is a number
         else:
             self.delete_last_number()
-            if len(self.expression) != 0 and self.expression[-1] in MathsUtils.operators[2:4]:
+            if len(self.expression) != 0 and self.expression[-1] in MathsUtils.operators[2:]:
                 self.expression += str(float(numbers[1]) / 100)
             else:
                 number = (float(numbers[-2]) * float(numbers[-1]) / 100) if len(numbers) > 1 else 0
