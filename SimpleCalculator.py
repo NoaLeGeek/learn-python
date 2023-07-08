@@ -59,7 +59,7 @@ class SimpleCalculator:
                 button.configure(bg=self.LIGHT_BLUE, fg=self.LABEL_COLOR, font=self.DEFAULT_FONT_STYLE, command=self.eval)
             # The button is a digit button
             elif index in [9, 10, 11, 13, 14, 15, 17, 18, 19, 22]:
-                button.configure(bg=self.WHITE, fg=self.LABEL_COLOR, font=self.DIGITS_FONT_STYLE, command=lambda digit=-3 * (information[0] - 4) + information[1] + (1 if information[0] > 4 else 0): self.insert(digit))
+                button.configure(bg=self.WHITE, fg=self.LABEL_COLOR, font=self.DIGITS_FONT_STYLE, command=lambda digit=-3*(information[0]-4)+information[1]+(1 if information[0] > 4 else 0): self.insert(digit))
             # The button is an operator
             else:
                 button.configure(bg=self.OFF_WHITE, fg=self.LABEL_COLOR, font=self.DEFAULT_FONT_STYLE, command=information[2] if len(information) > 2 else lambda operator=value: self.insert(operator))
@@ -185,8 +185,3 @@ class SimpleCalculator:
                 else:
                     self.expression += str(number)
         self.update_label()
-
-
-if __name__ == '__main__':
-    simple_calculator = SimpleCalculator()
-    simple_calculator.run()
