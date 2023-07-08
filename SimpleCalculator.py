@@ -8,6 +8,16 @@ import Utils
 
 
 class SimpleCalculator:
+
+    DIGITS_FONT_STYLE = ("Arial", 24, "bold")
+    DEFAULT_FONT_STYLE = ("Arial", 20)
+
+    OFF_WHITE = "#F8FAFF"
+    WHITE = "#FFFFFF"
+    LIGHT_BLUE = "#CCEDFF"
+    LIGHT_GRAY = "#F5F5F5"
+    LABEL_COLOR = "#25265E"
+
     # This variable is filled with the contents of the calculator as the user presses its buttons.
     last_added = []
 
@@ -17,7 +27,7 @@ class SimpleCalculator:
         self.window.geometry("375x667")
         self.window.resizable(0, 0)
         self.expression = "0"
-        self.display_frame = tk.Frame(self.window, height=221, bg="#F5F5F5")
+        self.display_frame = tk.Frame(self.window, height=221, bg=self.LIGHT_GRAY)
         self.display_frame.pack(expand=True, fill="both")
         self.buttons_frame = tk.Frame(self.window)
         self.buttons_frame.pack(expand=True, fill="both")
@@ -25,8 +35,8 @@ class SimpleCalculator:
             self.buttons_frame.rowconfigure(x, weight=1)
             if x != 0:
                 self.buttons_frame.columnconfigure(x, weight=1)
-        self.label = tk.Label(self.display_frame, text=self.expression, anchor=tk.E, bg="#F5F5F5", fg="#25265E",
-                              padx=24, font=("Arial", 20, "bold"))
+        self.label = tk.Label(self.display_frame, text=self.expression, anchor=tk.E, bg=self.LIGHT_GRAY, fg=self.LABEL_COLOR,
+                              padx=24, font=(*self.DEFAULT_FONT_STYLE, "bold"))
         self.label.pack(expand=True, fill="both")
         # The buttons are placed on the first row (row 0) and the second column (column 1) of the grid
         button_information = {
@@ -46,13 +56,13 @@ class SimpleCalculator:
             index = information[0]*4 + information[1]
             # The button is the = button
             if index == 24:
-                button.configure(bg="#CCEDFF", fg="#25265E", font=("Arial", 20), command=self.eval)
+                button.configure(bg=self.LIGHT_BLUE, fg=self.LABEL_COLOR, font=self.DEFAULT_FONT_STYLE, command=self.eval)
             # The button is a digit button
             elif index in [9, 10, 11, 13, 14, 15, 17, 18, 19, 22]:
-                button.configure(bg="#FFFFFF", fg="#25265E", font=("Arial", 24, "bold"), command=lambda digit=-3 * (information[0] - 4) + information[1] + (1 if information[0] > 4 else 0): self.insert(digit))
+                button.configure(bg=self.WHITE, fg=self.LABEL_COLOR, font=self.DIGITS_FONT_STYLE, command=lambda digit=-3 * (information[0] - 4) + information[1] + (1 if information[0] > 4 else 0): self.insert(digit))
             # The button is an operator
             else:
-                button.configure(bg="#F8FAFF", fg="#25265E", font=("Arial", 20), command=information[2] if len(information) > 2 else lambda operator=value: self.insert(operator))
+                button.configure(bg=self.OFF_WHITE, fg=self.LABEL_COLOR, font=self.DEFAULT_FONT_STYLE, command=information[2] if len(information) > 2 else lambda operator=value: self.insert(operator))
             button.grid(row=information[0], column=information[1], sticky=tk.NSEW)
 
     # Evaluate the contents of the calculator
@@ -81,6 +91,7 @@ class SimpleCalculator:
         finally:
             self.update_label()
 
+    # Clear the expression
     def clear(self):
         self.expression = ""
         self.update_label()
@@ -91,6 +102,7 @@ class SimpleCalculator:
         self.expression = self.expression[:-1]
         self.update_label()
 
+    # Update the label and display the expression
     def update_label(self):
         self.label.config(text=self.expression[:22])
 
