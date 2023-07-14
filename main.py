@@ -1,3 +1,4 @@
+import JSONKeyValueConfig
 from SimpleCalculator import SimpleCalculator
 
 import pyautogui
@@ -9,5 +10,5 @@ def main():
     print("e")
 
 if __name__ == '__main__':
-    app = SimpleCalculator()
+    app = JSONKeyValueConfig.JSONKeyValueConfig()
     app.run()
