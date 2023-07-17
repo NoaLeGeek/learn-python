@@ -7,13 +7,29 @@ from tkinter import filedialog, ttk
 
 class JSONKeyValueConfig:
     config_file = "config.json"
+    default_config = {"filePath": [], "autoSlot": False}
     list_slots = []
     list_buttons = []
 
     def __init__(self):
+        # This is the default config if the config_file doesn't exist
+        config = self.default_config
+        # If the config_file doesn't exist, it will be created
+        if os.path.isfile(self.config_file):
+            try:
+                # Read the config_file
+                with open(self.config_file, "r") as file:
+                    config = json.load(file)
+                    config["autoSlot"] = False
+            except json.JSONDecodeError:
+                pass
+        with open(self.config_file, "w") as file:
+            json.dump(config, file, indent=4)
         self.window = tk.Tk()
         self.window.title("JSONKeyValueConfig")
         self.window.geometry("500x500")
+        self.auto_slot_button = tk.Button(self.window, text="Auto slot: OFF", command=self.toggle_auto_slot)
+        self.auto_slot_button.pack(side="top")
         button = tk.Button(self.window, text="Add a filepath", command=self.add_filepath)
         button.pack(side="top")
         self.filepath = tk.Label(self.window, text="No file added")
@@ -30,7 +46,7 @@ class JSONKeyValueConfig:
 
     def update_config(self, filepath):
         # This is the default config if the config_file doesn't exist
-        config = {"filePath": []}
+        config = self.default_config
         # If the config_file doesn't exist, it will be created
         if os.path.isfile(self.config_file):
             try:
@@ -87,6 +103,24 @@ class JSONKeyValueConfig:
         self.list_slots.pop(index).destroy()
         for button in self.list_buttons.pop(index):
             button.destroy()
+
+    def toggle_auto_slot(self):
+        with open(self.config_file, "r") as file:
+            config = json.load(file)
+            auto_slot = not config["autoSlot"]
+        # Update the auto slot button
+        self.auto_slot_button.config(text=f"Auto slot: {'ON' if auto_slot else 'OFF'}")
+        # Update the auto slot value in the config_file
+        config = self.default_config
+        if os.path.isfile(self.config_file):
+            try:
+                with open(self.config_file, "r") as file:
+                    config = json.load(file)
+            except json.JSONDecodeError:
+                pass
+        config["autoSlot"] = auto_slot
+        with open(self.config_file, "w") as file:
+            json.dump(config, file, indent=4)
 
     def run(self):
         self.window.mainloop()
