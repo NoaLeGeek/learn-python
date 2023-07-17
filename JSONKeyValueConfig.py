@@ -71,6 +71,8 @@ class JSONKeyValueConfig:
             if self.list_slots:
                 # Update the slots' values
                 self.update_slots(files)
+                if config["autoSlot"]:
+                    self.add_slot(files)
             else:
                 self.add_slot(files)
         # The filepath is already in the list
