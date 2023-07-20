@@ -1,4 +1,3 @@
-from SimpleCalculator import SimpleCalculator
 import JSONKeyValueConfig
 
 

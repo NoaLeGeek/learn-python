@@ -105,11 +105,9 @@ class JSONKeyValueConfig:
         if index != len(self.slots) - 1:
             for i in range(index, len(self.slots)):
                 # TODO maybe delete index_slot variable
-                print(list(self.slots.values())[i][2])
                 list(self.slots.values())[i][2]["command"] = lambda index_slot=i - 1: self.remove_slot(index_slot)
         # Remove the slot and its buttons at the given index
-        self.slots.pop(list(self.slots.keys())[index]).destroy()
-        for button in list(self.slots.values())[index][1:]:
+        for button in self.slots.pop(list(self.slots.keys())[index])[1:]:
             button.destroy()
         print(["values R: "] + list(self.slots.values()))
         print(["keys R: "] + list(self.slots.keys()))
