@@ -1,8 +1,7 @@
-import inspect
+from tkinter import filedialog, ttk
 import json
 import os
 import tkinter as tk
-from tkinter import filedialog, ttk
 import ttkbootstrap
 
 
