@@ -1,9 +1,11 @@
 import JSONKeyValueConfig
+import Utils
 
 
 def main():
-    app = JSONKeyValueConfig.JSONKeyValueConfig()
-    app.run()
+    print(Utils.nonogram_boxes(6, 9))
+    # app = JSONKeyValueConfig.JSONKeyValueConfig()
+    # app.run()
 
 
 if __name__ == '__main__':
