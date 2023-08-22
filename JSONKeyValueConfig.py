@@ -60,29 +60,24 @@ class JSONKeyValueConfig:
                     config = json.load(file)
             except json.JSONDecodeError:
                 pass
-        # The filepath is empty
         if filepath == "":
             self.filepath.config(text="Empty filepath")
-        # Add the new filepath to the config_file's list if it's not already in the list
-        elif filepath not in config["filePath"]:
-            config["filePath"].append(filepath)
-            # Write the updated config to the config_file
-            with open(self.config_file, "w") as file:
-                json.dump(config, file, indent=4)
-            # Update the filepath label
-            self.filepath.config(text=os.path.basename(filepath))
-            files = [os.path.basename(path) for path in config["filePath"]]
-            # The list of slots isn't empty
-            if self.slots.keys():
-                # Update the slots' values
-                self.update_slots(files)
-                if config["autoSlot"]:
-                    self.add_slot(files)
-            else:
-                self.add_slot(files)
-        # The filepath is already in the list
-        else:
+            pass
+        if filepath in config["filePath"]:
             self.filepath.config(text="Filepath already added")
+            pass
+        config["filePath"].append(filepath)
+        with open(self.config_file, "w") as file:
+            json.dump(config, file, indent=4)
+        self.filepath.config(text=os.path.basename(filepath))
+        files = [os.path.basename(path) for path in config["filePath"]]
+        if self.slots.keys():
+            self.update_slots(files)
+            if config["autoSlot"]:
+                self.add_slot(files)
+        else:
+            self.add_slot(files)
+        
 
     def update_slots(self, filepaths):
         for slot in self.slots.keys():
