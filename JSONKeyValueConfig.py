@@ -3,21 +3,19 @@ import json
 import os
 import tkinter as tk
 from tkinter import filedialog, ttk
+import ttkbootstrap 
 
 
 class JSONKeyValueConfig:
     config_file = "config.json"
     default_config = {"filePath": [], "autoSlot": False}
-    list_slots = []
+    slots = {}
     list_buttons = []
 
     def __init__(self):
-        # This is the default config if the config_file doesn't exist
         config = self.default_config
-        # If the config_file doesn't exist, it will be created
         if os.path.isfile(self.config_file):
             try:
-                # Read the config_file
                 with open(self.config_file, "r") as file:
                     config = json.load(file)
                     config["autoSlot"] = False
@@ -30,6 +28,7 @@ class JSONKeyValueConfig:
         self.window.geometry("500x500")
         self.auto_slot_button = tk.Button(self.window, text="Auto slot: OFF", command=self.toggle_auto_slot)
         self.auto_slot_button.pack(side="top")
+        self.toggle_auto_slot = ttkbootstrap.Checkbutton(self.window, text="Auto slot", command=self.toggle_auto_slot)
         button = tk.Button(self.window, text="Add a filepath", command=self.add_filepath)
         button.pack(side="top")
         self.filepath = tk.Label(self.window, text="No file added")
@@ -68,7 +67,7 @@ class JSONKeyValueConfig:
             self.filepath.config(text=os.path.basename(filepath))
             files = [os.path.basename(path) for path in config["filePath"]]
             # The list of slots isn't empty
-            if self.list_slots:
+            if self.slots.keys():
                 # Update the slots' values
                 self.update_slots(files)
                 if config["autoSlot"]:
@@ -80,31 +79,38 @@ class JSONKeyValueConfig:
             self.filepath.config(text="Filepath already added")
 
     def update_slots(self, filepaths):
-        for slot in self.list_slots:
+        for slot in self.slots.keys():
             slot.config(values=filepaths)
 
     def add_slot(self, filepaths):
-        slot = Slot(self.window, values=filepaths)
+        variable = tk.StringVar()
+        slot = ttk.OptionMenu(self.window, variable, filepaths[0], *filepaths)
         slot.pack(side="top")
         add_button = tk.Button(self.window, text="Add a slot", command=lambda: self.add_slot(filepaths))
         add_button.pack(side="top")
         remove_button = None
-        if self.list_slots:
+        if self.slots.keys():
             remove_button = tk.Button(self.window, text="Remove a slot",
-                                      command=lambda index=len(self.list_slots): self.remove_slot(index))
+                                      command=lambda index=len(self.slots): self.remove_slot(index))
             remove_button.pack(side="top")
-        self.list_slots.append(slot)
-        self.list_buttons.append((add_button, remove_button))
+        self.slots[slot] = variable, add_button, remove_button
+        print(["values: "]+list(self.slots.values()))
+        print(["keys: "]+list(self.slots.keys()))
 
     def remove_slot(self, index):
-        # Update the slots' remove buttons
-        if index != len(self.list_slots) - 1:
-            for i in range(index, len(self.list_slots)):
-                self.list_buttons[i][1]["command"] = lambda index_slot=i - 1: self.remove_slot(index_slot)
+        # Update the slots' remove buttons only if the index isn't the last one
+        if index != len(self.slots) - 1:
+            for i in range(index, len(self.slots)):
+                #TODO maybe delete index_slot variable
+                print(list(self.slots.values())[i][2])
+                list(self.slots.values())[i][2]["command"] = lambda index_slot=i - 1: self.remove_slot(index_slot)
         # Remove the slot and its buttons at the given index
-        self.list_slots.pop(index).destroy()
-        for button in self.list_buttons.pop(index):
+        self.slots.pop(list(self.slots.keys())[index]).destroy()
+        for button in list(self.slots.values())[index][1:]:
             button.destroy()
+        print(["values R: "]+list(self.slots.values()))
+        print(["keys R: "]+list(self.slots.keys()))
+        
 
     def toggle_auto_slot(self):
         with open(self.config_file, "r") as file:
@@ -127,11 +133,6 @@ class JSONKeyValueConfig:
     def run(self):
         self.window.mainloop()
 
-
-class Slot(ttk.Combobox):
-    def __init__(self, *args, values, **kwargs):
-        ttk.Combobox.__init__(self, *args, **kwargs)
-        # Prevent the user from typing in the Combobox
-        self["state"] = "readonly"
-        self["values"] = values
-        self.current(0)
+#TODO change the placement system to the grid system
+#TODO replace ttk.Combobox by ttk.OptionMenu
+#TODO add a slider true/false for autoSlot button
