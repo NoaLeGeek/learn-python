@@ -1,8 +1,12 @@
 import JSONKeyValueConfig
-from SimpleCalculator import SimpleCalculator
+import Utils
+
 
 def main():
-    print("e")
+    print(Utils.nonogram_boxes(7, length=10))
+    # app = JSONKeyValueConfig.JSONKeyValueConfig()
+    # app.run()
+
 
 if __name__ == '__main__':
     app = JSONKeyValueConfig.JSONKeyValueConfig()
