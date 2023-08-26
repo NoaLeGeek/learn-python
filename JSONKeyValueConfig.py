@@ -13,12 +13,9 @@ class JSONKeyValueConfig:
     slots = {}
 
     def __init__(self):
-        # This is the default config if the config_file doesn't exist
         config = self.default_config
-        # If the config_file doesn't exist, it will be created
         if os.path.isfile(self.config_file):
             try:
-                # Read the config_file
                 with open(self.config_file, "r") as file:
                     config = json.load(file)
                     config["autoSlot"] = False
