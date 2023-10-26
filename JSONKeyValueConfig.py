@@ -74,7 +74,6 @@ class JSONKeyValueConfig:
                 self.add_slot(files)
         else:
             self.add_slot(files)
-        
 
     def update_slots(self, filepaths):
         for slot in self.slots.keys():
@@ -128,6 +127,10 @@ class JSONKeyValueConfig:
         config["autoSlot"] = auto_slot
         with open(self.config_file, "w") as file:
             json.dump(config, file, indent=4)
+
+    def grid(self, widget: tk.Widget, **kwargs):
+        widget.grid(kwargs)
+        self.next_row += 1
 
     def run(self):
         self.window.mainloop()
