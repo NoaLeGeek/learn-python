@@ -5,72 +5,71 @@ import nsi
 
 length = 400
 window = tkinter.Tk()
+value = tkinter.IntVar()
 canvas = tkinter.Canvas(window, bg='grey', height=length, width=length)
-x1, y1 = -1, -1
+x, y = -1, -1
 
 
 def main():
+    value.set(1)
     canvas.pack(side=tkinter.LEFT)
     canvas.bind("<Button-1>", click)
-    value = tkinter.IntVar()
     frame = tkinter.Frame(window, borderwidth=2, relief=tkinter.GROOVE)
     frame.pack(side=tkinter.TOP)
-    bouton4 = tkinter.Radiobutton(frame, text="Segment", variable=value, value=1)
-    bouton5 = tkinter.Radiobutton(frame, text="Rectangle", variable=value, value=2)
-    bouton6 = tkinter.Radiobutton(frame, text="Disque", variable=value, value=3)
-    bouton4.pack(side=tkinter.TOP, padx=5, pady=5)
-    bouton5.pack(side=tkinter.TOP, padx=5, pady=5)
-    bouton6.pack(side=tkinter.TOP, padx=5, pady=5)
-    button1 = tkinter.Button(window, text='Quitter', command=window.quit)
-    button1.pack(side=tkinter.BOTTOM, padx=5, pady=5)
-    cmd = None
-    print(value.get())
-    if value.get() == 1:
-        cmd = lambda: drawLine(canvas, length)
-    elif value.get() == 2:
-        cmd = lambda: drawRectangle(canvas, length)
-    else:
-        cmd = lambda: drawCircle(canvas, length)
-    button2 = tkinter.Button(window, text='Tracer la forme', command=cmd)
-    button2.pack(side=tkinter.TOP, padx=5, pady=5)
-    button3 = tkinter.Button(window, text='Effacer', command=lambda: clearCanvas(canvas))
-    button3.pack(side=tkinter.TOP, padx=5, pady=5)
+    radiobutton1 = tkinter.Radiobutton(frame, text="Segment", variable=value, value=1)
+    radiobutton2 = tkinter.Radiobutton(frame, text="Rectangle", variable=value, value=2)
+    radiobutton3 = tkinter.Radiobutton(frame, text="Disque", variable=value, value=3)
+    radiobutton1.pack(side=tkinter.TOP, padx=5, pady=5)
+    radiobutton2.pack(side=tkinter.TOP, padx=5, pady=5)
+    radiobutton3.pack(side=tkinter.TOP, padx=5, pady=5)
+    quitButton = tkinter.Button(window, text='Quitter', command=window.quit)
+    quitButton.pack(side=tkinter.BOTTOM, padx=5, pady=5)
+    formButton = tkinter.Button(window, text='Tracer la forme', command=lambda: tracer_forme())
+    formButton.pack(side=tkinter.TOP, padx=5, pady=5)
+    eraseButton = tkinter.Button(window, text='Effacer', command=lambda: clear_canvas(canvas))
+    eraseButton.pack(side=tkinter.TOP, padx=5, pady=5)
     window.mainloop()
 
 
 def click(event):
-    global x1, y1
-    if x1 == -1:
-        x1, y1 = event.x, event.y
+    global x, y
+    if x == -1:
+        x, y = event.x, event.y
     else:
-        canvas.create_line(x1, y1, event.x, event.y, width=2,
-                           fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
-        x1, y1 = -1, -1
+        tracer_forme(x, y, event.x, event.y)
+        x, y = -1, -1
 
 
-def drawLine(canvas: tkinter.Canvas, length, width=2):
+def tracer_forme(x1=random.randint(0, length), y1=random.randint(0, length), x2=random.randint(0, length),
+                 y2=random.randint(0, length)):
+    if value.get() == 1:
+        draw_line(canvas, x1, y1, x2, y2)
+    elif value.get() == 2:
+        draw_rectangle(canvas, x1, y1, x2, y2)
+    else:
+        draw_circle(canvas, x1, y1, x2, y2)
+
+
+def draw_line(canvas: tkinter.Canvas, x1, y1, x2, y2, width=2):
     for i in range(5):
-        canvas.create_line(random.randint(0, length), random.randint(0, length),
-                           random.randint(0, length), random.randint(0, length), width=width,
+        canvas.create_line(x1, y1, x2, y2, width=width,
                            fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
 
 
-def drawRectangle(canvas: tkinter.Canvas, length, width=2):
+def draw_rectangle(canvas: tkinter.Canvas, x1, y1, x2, y2, width=2):
     for i in range(5):
-        canvas.create_rectangle(random.randint(0, length), random.randint(0, length),
-                                random.randint(0, length), random.randint(0, length), width=width,
+        canvas.create_rectangle(x1, y1, x2, y2, width=width,
                                 fill=random.choice(
                                     ['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
 
 
-def drawCircle(canvas: tkinter.Canvas, length, width=2):
+def draw_circle(canvas: tkinter.Canvas, x1, y1, x2, y2, width=2):
     for i in range(5):
-        canvas.create_oval(random.randint(0, length), random.randint(0, length),
-                           random.randint(0, length), random.randint(0, length), width=width,
+        canvas.create_oval(x1, y1, x2, y2, width=width,
                            fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
 
 
-def clearCanvas(canvas: tkinter.Canvas):
+def clear_canvas(canvas: tkinter.Canvas):
     canvas.delete(tkinter.ALL)
 
 
@@ -90,7 +89,7 @@ if __name__ == '__main__':
                 'Uranus': (2870, 51300 / 149.5978707, 15),
                 'Neptune': (4496, 49500 / 149.5978707, 8),
                 'Pluton': (5900, 2000 / 149.5978707, 1)}
-    print(max(j[1] for j in planetes.values()))
-    print("Le planète avec le plus grand diamètre", [i for i in planetes if max(j[1] for j in planetes) in i][0])
+    planete_max = max(planetes, key=lambda planete: planetes[planete][1])
+    print("Le planète avec le plus grand diamètre est", planete_max, "avec un diamètre de", planetes[planete_max][1])
     # app = Test.Test()
     # app.run()
