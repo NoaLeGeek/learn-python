@@ -4,6 +4,7 @@ from tkinter import Entry
 
 import MathsUtils
 
+
 def generate_choices(choices: dict) -> str:
     string = ""
     for x in range(len(choices)):
@@ -19,7 +20,8 @@ def nonogram_boxes(*args, length: int = 10) -> list[int]:
         args = (args,)
     if len(args) - 1 + sum(args) == length:
         return [1 if i % (num + 1) < num else 0 for num in args for i in range(num + 1)][:-1]
-    positions = [1 if i % (num + 1) < num else 0 for num in args for i in range(num + 1)] + [0] * (length - sum(args) - len(args))
+    positions = [1 if i % (num + 1) < num else 0 for num in args for i in range(num + 1)] + [0] * (
+                length - sum(args) - len(args))
     boxes = positions.copy()
     for _ in range(length - sum(args) - len(args) + 1):
         positions.insert(0, 0)
@@ -42,5 +44,3 @@ def delete_entry(entry: Entry) -> None:
 # Insert at the entry's end the specified text
 def insert_entry(entry: Entry, string: str) -> None:
     entry.insert(tk.END, MathsUtils.formatted_number(string) if MathsUtils.is_number(string) else string)
-
-
