@@ -6,25 +6,45 @@ import nsi
 length = 400
 window = tkinter.Tk()
 value = tkinter.IntVar()
+triangleValue = tkinter.IntVar()
 canvas = tkinter.Canvas(window, bg='grey', height=length, width=length)
 x, y = -1, -1
+triangle_points = []
 
 
 def main():
     value.set(1)
+    triangleValue.set(1)
     canvas.pack(side=tkinter.LEFT)
     canvas.bind("<Button-1>", click)
     frame = tkinter.Frame(window, borderwidth=2, relief=tkinter.GROOVE)
     frame.pack(side=tkinter.TOP)
-    radiobutton1 = tkinter.Radiobutton(frame, text="Segment", variable=value, value=1)
-    radiobutton2 = tkinter.Radiobutton(frame, text="Rectangle", variable=value, value=2)
-    radiobutton3 = tkinter.Radiobutton(frame, text="Disque", variable=value, value=3)
+    triangleFrame = tkinter.Frame(window, borderwidth=2, relief=tkinter.GROOVE)
+    radiobutton1 = tkinter.Radiobutton(frame, text="Segment", variable=value, value=1,
+                                       command=lambda f=triangleFrame: toggle_widget(f))
     radiobutton1.pack(side=tkinter.TOP, padx=5, pady=5)
+    radiobutton2 = tkinter.Radiobutton(frame, text="Rectangle", variable=value, value=2,
+                                       command=lambda f=triangleFrame: toggle_widget(f))
     radiobutton2.pack(side=tkinter.TOP, padx=5, pady=5)
+    radiobutton3 = tkinter.Radiobutton(frame, text="Disque", variable=value, value=3,
+                                       command=lambda f=triangleFrame: toggle_widget(f))
     radiobutton3.pack(side=tkinter.TOP, padx=5, pady=5)
+    radiobutton4 = tkinter.Radiobutton(frame, text="Triangle", variable=value, value=4,
+                                       command=lambda f=triangleFrame: toggle_widget(f))
+    radiobutton4.pack(side=tkinter.TOP, padx=5, pady=5)
+    triangleButton1 = tkinter.Radiobutton(triangleFrame, text='Circoncentre', variable=triangleValue, value=1)
+    triangleButton1.pack(side=tkinter.TOP, padx=5, pady=5)
+    triangleButton2 = tkinter.Radiobutton(triangleFrame, text='Circonscrit', variable=triangleValue, value=2)
+    triangleButton2.pack(side=tkinter.TOP, padx=5, pady=5)
+    triangleButton3 = tkinter.Radiobutton(triangleFrame, text='Centroïde', variable=triangleValue, value=3)
+    triangleButton3.pack(side=tkinter.TOP, padx=5, pady=5)
+    triangleButton4 = tkinter.Radiobutton(triangleFrame, text='Orthocentre', variable=triangleValue, value=4)
+    triangleButton4.pack(side=tkinter.TOP, padx=5, pady=5)
     quitButton = tkinter.Button(window, text='Quitter', command=window.quit)
     quitButton.pack(side=tkinter.BOTTOM, padx=5, pady=5)
-    formButton = tkinter.Button(window, text='Tracer la forme', command=lambda: tracer_forme())
+    formButton = tkinter.Button(window, text='Tracer la forme',
+                                command=lambda: tracer_forme((random.randint(0, length), random.randint(0, length)),
+                                                             (random.randint(0, length), random.randint(0, length))))
     formButton.pack(side=tkinter.TOP, padx=5, pady=5)
     eraseButton = tkinter.Button(window, text='Effacer', command=lambda: clear_canvas(canvas))
     eraseButton.pack(side=tkinter.TOP, padx=5, pady=5)
@@ -32,45 +52,67 @@ def main():
 
 
 def click(event):
-    global x, y
-    if x == -1:
-        x, y = event.x, event.y
+    if value.get() == 4:
+        canvas.create_oval(event.x - 1, event.y - 1, event.x + 1, event.y + 1, fill='black')
+        global triangle_points
+        if len(triangle_points) == 2:
+            tracer_triangle(canvas, *triangle_points, (event.x, event.y))
+            triangle_points = []
+        else:
+            triangle_points.append((event.x, event.y))
     else:
-        tracer_forme(x, y, event.x, event.y)
-        x, y = -1, -1
+        global x, y
+        if x == -1:
+            x, y = event.x, event.y
+        else:
+            tracer_forme((x, y), (event.x, event.y))
+            x, y = -1, -1
 
 
-def tracer_forme(x1=random.randint(0, length), y1=random.randint(0, length), x2=random.randint(0, length),
-                 y2=random.randint(0, length)):
-    if value.get() == 1:
-        draw_line(canvas, x1, y1, x2, y2)
-    elif value.get() == 2:
-        draw_rectangle(canvas, x1, y1, x2, y2)
+def tracer_forme(p1: tuple[int, int], p2: tuple[int, int]):
+    match value.get():
+        case 1:
+            draw_line(canvas, p1, p2)
+        case 2:
+            draw_rectangle(canvas, p1, p2)
+        case 3:
+            draw_circle(canvas, p1, p2)
+
+
+def toggle_widget(widget: tkinter.Widget, **kwargs):
+    if value.get() == 4:
+        widget.pack(kwargs)
     else:
-        draw_circle(canvas, x1, y1, x2, y2)
+        widget.pack_forget()
 
 
-def draw_line(canvas: tkinter.Canvas, x1, y1, x2, y2, width=2):
+def tracer_triangle(c: tkinter.Canvas, p1: tuple[int, int], p2: tuple[int, int], p3: tuple[int, int], width=2):
+    c.create_line(*p1, *p2, width=2, fill='black')
+    c.create_line(*p2, *p3, width=2, fill='black')
+    c.create_line(*p1, *p3, width=2, fill='black')
+
+
+def draw_line(c: tkinter.Canvas, p1: tuple[int, int], p2: tuple[int, int], width=2):
     for i in range(5):
-        canvas.create_line(x1, y1, x2, y2, width=width,
-                           fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
+        c.create_line(*p1, *p2, width=width,
+                      fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
 
 
-def draw_rectangle(canvas: tkinter.Canvas, x1, y1, x2, y2, width=2):
+def draw_rectangle(c: tkinter.Canvas, p1: tuple[int, int], p2: tuple[int, int], width=2):
     for i in range(5):
-        canvas.create_rectangle(x1, y1, x2, y2, width=width,
-                                fill=random.choice(
-                                    ['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
+        c.create_rectangle(*p1, *p2, width=width,
+                           fill=random.choice(
+                               ['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
 
 
-def draw_circle(canvas: tkinter.Canvas, x1, y1, x2, y2, width=2):
+def draw_circle(c: tkinter.Canvas, p1: tuple[int, int], p2: tuple[int, int], width=2):
     for i in range(5):
-        canvas.create_oval(x1, y1, x2, y2, width=width,
-                           fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
+        c.create_oval(*p1, *p2, width=width,
+                      fill=random.choice(['white', 'black', 'red', 'green', 'blue', 'cyan', 'yellow', 'magenta']))
 
 
-def clear_canvas(canvas: tkinter.Canvas):
-    canvas.delete(tkinter.ALL)
+def clear_canvas(c: tkinter.Canvas):
+    c.delete(tkinter.ALL)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 # Returns the last element of a list
 import tkinter as tk
 from tkinter import Entry
+from typing import Tuple, Any
 
 import MathsUtils
 
@@ -44,3 +45,10 @@ def delete_entry(entry: Entry) -> None:
 # Insert at the entry's end the specified text
 def insert_entry(entry: Entry, string: str) -> None:
     entry.insert(tk.END, MathsUtils.formatted_number(string) if MathsUtils.is_number(string) else string)
+
+
+def solve_system(a1, b1, c1, a2, b2, c2) -> tuple[int, int] | None:
+    determinant = a1 * b2 - a2 * b1
+    if determinant == 0:
+        return None
+    return (c1 * b2 - c2 * b1) / determinant, (a1 * c2 - a2 * c1) / determinant
