@@ -43,8 +43,7 @@ def main():
     quitButton = tkinter.Button(window, text='Quitter', command=window.quit)
     quitButton.pack(side=tkinter.BOTTOM, padx=5, pady=5)
     formButton = tkinter.Button(window, text='Tracer la forme',
-                                command=lambda: tracer_forme((random.randint(0, length), random.randint(0, length)),
-                                                             (random.randint(0, length), random.randint(0, length))))
+                                command=lambda: tracer_forme(canvas, *triangle_points[-3:]))
     formButton.pack(side=tkinter.TOP, padx=5, pady=5)
     eraseButton = tkinter.Button(window, text='Effacer', command=lambda: clear_canvas(canvas))
     eraseButton.pack(side=tkinter.TOP, padx=5, pady=5)
@@ -55,28 +54,46 @@ def click(event):
     if value.get() == 4:
         canvas.create_oval(event.x - 1, event.y - 1, event.x + 1, event.y + 1, fill='black')
         global triangle_points
-        if len(triangle_points) == 2:
-            tracer_triangle(canvas, *triangle_points, (event.x, event.y))
-            triangle_points = []
-        else:
-            triangle_points.append((event.x, event.y))
+        triangle_points.append((event.x, event.y))
+        if len(triangle_points) % 3 == 0:
+            tracer_triangle(canvas, *triangle_points[-3:])
     else:
         global x, y
         if x == -1:
             x, y = event.x, event.y
         else:
-            tracer_forme((x, y), (event.x, event.y))
+            tracer_forme(canvas, (x, y), (event.x, event.y))
             x, y = -1, -1
 
 
-def tracer_forme(p1: tuple[int, int], p2: tuple[int, int]):
+def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, int] = None, p3: tuple[int, int] = None):
     match value.get():
         case 1:
-            draw_line(canvas, p1, p2)
+            draw_line(canvas, (
+            (random.randint(0, length) if p1 is None else p1[0]), (random.randint(0, length) if p1 is None else p1[1])),
+                      ((random.randint(0, length) if p2 is None else p2[0]),
+                       (random.randint(0, length) if p2 is None else p2[1])))
         case 2:
-            draw_rectangle(canvas, p1, p2)
+            draw_rectangle(canvas, (
+            (random.randint(0, length) if p1 is None else p1[0]), (random.randint(0, length) if p1 is None else p1[1])),
+                           ((random.randint(0, length) if p2 is None else p2[0]),
+                            (random.randint(0, length) if p2 is None else p2[1])))
         case 3:
-            draw_circle(canvas, p1, p2)
+            draw_circle(canvas, (
+            (random.randint(0, length) if p1 is None else p1[0]), (random.randint(0, length) if p1 is None else p1[1])),
+                        ((random.randint(0, length) if p2 is None else p2[0]),
+                         (random.randint(0, length) if p2 is None else p2[1])))
+        case 4:
+            if p3 is not None:
+                match triangleValue.get():
+                    case 1:
+                        ax, bx, cx, ay, by, cy = p1[0], p2[0], p3[0], p1[1], p2[1], p3[1]
+                        d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+                        px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (
+                                cx * cx + cy * cy) * (ay - by)) / d
+                        py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (
+                                cx * cx + cy * cy) * (bx - ax)) / d
+                        c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='red')
 
 
 def toggle_widget(widget: tkinter.Widget, **kwargs):
