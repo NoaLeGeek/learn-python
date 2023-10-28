@@ -1,6 +1,7 @@
 import random
 import tkinter
 
+import Utils
 import nsi
 
 length = 400
@@ -87,13 +88,14 @@ def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, i
             if p3 is not None:
                 match triangleValue.get():
                     case 1:
-                        ax, bx, cx, ay, by, cy = p1[0], p2[0], p3[0], p1[1], p2[1], p3[1]
-                        d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
-                        px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (
-                                cx * cx + cy * cy) * (ay - by)) / d
-                        py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (
-                                cx * cx + cy * cy) * (bx - ax)) / d
-                        c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='red')
+                        for coord in Utils.divide_list(triangle_points[:-3], 3) + [[p1, p2, p3]]:
+                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], coord[2][1]
+                            d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+                            px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (
+                                    cx * cx + cy * cy) * (ay - by)) / d
+                            py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (
+                                    cx * cx + cy * cy) * (bx - ax)) / d
+                            c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='red', outline='red')
 
 
 def toggle_widget(widget: tkinter.Widget, **kwargs):
@@ -129,7 +131,9 @@ def draw_circle(c: tkinter.Canvas, p1: tuple[int, int], p2: tuple[int, int], wid
 
 
 def clear_canvas(c: tkinter.Canvas):
+    global triangle_points
     c.delete(tkinter.ALL)
+    triangle_points = []
 
 
 if __name__ == '__main__':
