@@ -3,6 +3,7 @@ import tkinter
 
 import Utils
 import nsi
+import math
 
 length = 400
 window = tkinter.Tk()
@@ -88,7 +89,7 @@ def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, i
             if p3 is not None:
                 match triangleValue.get():
                     case 1:
-                        for coord in Utils.divide_list(triangle_points[:-3], 3) + [[p1, p2, p3]]:
+                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [[p1, p2, p3]]:
                             ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], coord[2][1]
                             d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
                             px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (
@@ -96,6 +97,8 @@ def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, i
                             py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (
                                     cx * cx + cy * cy) * (bx - ax)) / d
                             c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='red', outline='red')
+                            r = math.sqrt((px - ax) ** 2 + (py - ay) ** 2)
+                            c.create_oval(px - r, py - r, px + r, py + r, width=2, outline='black')
 
 
 def toggle_widget(widget: tkinter.Widget, **kwargs):
