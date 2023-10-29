@@ -92,12 +92,22 @@ def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, i
                         for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [[p1, p2, p3]]:
                             ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], coord[2][1]
                             d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
-                            px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (
-                                    cx * cx + cy * cy) * (ay - by)) / d
-                            py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (
-                                    cx * cx + cy * cy) * (bx - ax)) / d
+                            px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
+                            py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
                             c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='red', outline='red')
                             r = math.sqrt((px - ax) ** 2 + (py - ay) ** 2)
+                            c.create_oval(px - r, py - r, px + r, py + r, width=2, outline='black')
+                    case 2:
+                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [[p1, p2, p3]]:
+                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], coord[2][1]
+                            ab = math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
+                            bc = math.sqrt((bx - cx) ** 2 + (by - cy) ** 2)
+                            ac = math.sqrt((ax - cx) ** 2 + (ay - cy) ** 2)
+                            px = (ab * cx + bc * ax + ac * bx) / (ab + bc + ac)
+                            py = (ab * cy + bc * ay + ac * by) / (ab + bc + ac)
+                            c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='blue', outline='blue')
+                            p = (ab + bc + ac) / 2
+                            r = math.sqrt(p * (p - ab) * (p - bc) * (p - ac)) / p
                             c.create_oval(px - r, py - r, px + r, py + r, width=2, outline='black')
 
 
