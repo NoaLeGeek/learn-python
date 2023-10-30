@@ -34,9 +34,9 @@ def main():
     radiobutton4 = tkinter.Radiobutton(frame, text="Triangle", variable=value, value=4,
                                        command=lambda f=triangleFrame: toggle_widget(f))
     radiobutton4.pack(side=tkinter.TOP, padx=5, pady=5)
-    triangleButton1 = tkinter.Radiobutton(triangleFrame, text='Circoncentre', variable=triangleValue, value=1)
+    triangleButton1 = tkinter.Radiobutton(triangleFrame, text='Cercle circonscrit', variable=triangleValue, value=1)
     triangleButton1.pack(side=tkinter.TOP, padx=5, pady=5)
-    triangleButton2 = tkinter.Radiobutton(triangleFrame, text='Circonscrit', variable=triangleValue, value=2)
+    triangleButton2 = tkinter.Radiobutton(triangleFrame, text='Cercle inscrit', variable=triangleValue, value=2)
     triangleButton2.pack(side=tkinter.TOP, padx=5, pady=5)
     triangleButton3 = tkinter.Radiobutton(triangleFrame, text='Centroïde', variable=triangleValue, value=3)
     triangleButton3.pack(side=tkinter.TOP, padx=5, pady=5)
@@ -72,34 +72,43 @@ def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, i
     match value.get():
         case 1:
             draw_line(canvas, (
-            (random.randint(0, length) if p1 is None else p1[0]), (random.randint(0, length) if p1 is None else p1[1])),
+                (random.randint(0, length) if p1 is None else p1[0]),
+                (random.randint(0, length) if p1 is None else p1[1])),
                       ((random.randint(0, length) if p2 is None else p2[0]),
                        (random.randint(0, length) if p2 is None else p2[1])))
         case 2:
             draw_rectangle(canvas, (
-            (random.randint(0, length) if p1 is None else p1[0]), (random.randint(0, length) if p1 is None else p1[1])),
+                (random.randint(0, length) if p1 is None else p1[0]),
+                (random.randint(0, length) if p1 is None else p1[1])),
                            ((random.randint(0, length) if p2 is None else p2[0]),
                             (random.randint(0, length) if p2 is None else p2[1])))
         case 3:
             draw_circle(canvas, (
-            (random.randint(0, length) if p1 is None else p1[0]), (random.randint(0, length) if p1 is None else p1[1])),
+                (random.randint(0, length) if p1 is None else p1[0]),
+                (random.randint(0, length) if p1 is None else p1[1])),
                         ((random.randint(0, length) if p2 is None else p2[0]),
                          (random.randint(0, length) if p2 is None else p2[1])))
         case 4:
             if p3 is not None:
                 match triangleValue.get():
                     case 1:
-                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [[p1, p2, p3]]:
-                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], coord[2][1]
+                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [
+                            [p1, p2, p3]]:
+                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], \
+                                coord[2][1]
                             d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
-                            px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
-                            py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
+                            px = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (
+                                    cx * cx + cy * cy) * (ay - by)) / d
+                            py = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (
+                                    cx * cx + cy * cy) * (bx - ax)) / d
                             c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='red', outline='red')
                             r = math.sqrt((px - ax) ** 2 + (py - ay) ** 2)
                             c.create_oval(px - r, py - r, px + r, py + r, width=2, outline='black')
                     case 2:
-                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [[p1, p2, p3]]:
-                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], coord[2][1]
+                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [
+                            [p1, p2, p3]]:
+                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], \
+                                coord[2][1]
                             ab = math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
                             bc = math.sqrt((bx - cx) ** 2 + (by - cy) ** 2)
                             ac = math.sqrt((ax - cx) ** 2 + (ay - cy) ** 2)
@@ -109,6 +118,22 @@ def tracer_forme(c: tkinter.Canvas, p1: tuple[int, int] = None, p2: tuple[int, i
                             p = (ab + bc + ac) / 2
                             r = math.sqrt(p * (p - ab) * (p - bc) * (p - ac)) / p
                             c.create_oval(px - r, py - r, px + r, py + r, width=2, outline='black')
+                    case 3:
+                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [
+                            [p1, p2, p3]]:
+                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], \
+                                coord[2][1]
+                            px = (ax + bx + cx) / 3
+                            py = (ay + by + cy) / 3
+                            c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='green', outline='green')
+                    case 4:
+                        for coord in Utils.divide_list(Utils.ajust_len_list(triangle_points, 3)[:-3], 3) + [
+                            [p1, p2, p3]]:
+                            ax, bx, cx, ay, by, cy = coord[0][0], coord[1][0], coord[2][0], coord[0][1], coord[1][1], \
+                                coord[2][1]
+                            px = ax
+                            py = ay
+                            c.create_oval(px - 1, py - 1, px + 1, py + 1, width=2, fill='yellow', outline='yellow')
 
 
 def toggle_widget(widget: tkinter.Widget, **kwargs):

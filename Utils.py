@@ -1,7 +1,6 @@
 # Returns the last element of a list
 import tkinter as tk
 from tkinter import Entry
-from typing import Tuple, Any
 
 import MathsUtils
 
